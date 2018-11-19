@@ -468,7 +468,9 @@ var wickedElements = (function () {
       var ws = new WeakSet$1;
       var component = assign(
         {
-          init: function (event) {},
+          init: function (event) {
+            this.el = event.currentTarget;
+          },
           handleEvent: function (event) {
             var type = 'on' + event.type;
             if (type in this)
