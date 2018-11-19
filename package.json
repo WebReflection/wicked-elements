@@ -1,6 +1,6 @@
 {
   "name": "wicked-elements",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Components for the DOM as you've never seen before",
   "main": "cjs/index.js",
   "module": "esm/index.js",
