@@ -44,7 +44,7 @@ wickedElements.define('[is="wicked-element"]', {
   // works well with any 3rd parts library
   // WARNING: THIS IS JUST AS EXAMPLE,
   //          YOU DON'T NEED hyperHTML
-  //          TO USE THIS LIBRSRY!
+  //          TO USE THIS LIBRARY!
   //          THE NODE CAN BE ANY NODE
   //          AND ALREADY POPULATED WITH CONTENT
   render() {
