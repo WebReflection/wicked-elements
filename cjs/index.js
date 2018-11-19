@@ -27,7 +27,9 @@ var wickedElements = {
     var ws = new WeakSet;
     var component = assign(
       {
-        init: function (event) {},
+        init: function (event) {
+          this.el = event.currentTarget;
+        },
         handleEvent: function (event) {
           var type = 'on' + event.type;
           if (type in this)
