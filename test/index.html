@@ -8,7 +8,7 @@
   <script src="../min.js"></script>
   <script>
   this.onload = function () {
-    wickedElements.define('[is="regular-component"]', {
+    wickedElements.define('[is="wicked-element"]', {
       init: function (event) {
         this.el = event.currentTarget;
         log('init', this.el);
@@ -42,6 +42,6 @@
   </script>
 </head>
 <body>
-  <button is="regular-component">click test</button>
+  <button is="wicked-element">click test</button>
 </body>
 </html>
