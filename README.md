@@ -4,11 +4,13 @@ Components for the DOM as you've never seen before, bringing the [regularElement
 
   * no polyfills needed, it works [down to IE9](https://webreflection.github.io/wicked-elements/test/)
   * lightweight as in [~2K lightweight](https://unpkg.com/wicked-elements)
-  * CPU & RAM friendly (100% based on [handleEvent](https://medium.com/@WebReflection/dom-handleevent-a-cross-platform-standard-since-year-2000-5bf17287fd38) through prototypal inheritance)
-  * components can exist at any time (past, present, future)
+  * CPU & RAM friendly <sup><sub>(100% based on [handleEvent](https://medium.com/@WebReflection/dom-handleevent-a-cross-platform-standard-since-year-2000-5bf17287fd38) through prototypal inheritance)</sub></sup>
+  * components can exist at any time <sup><sub>(past, present, future)</sub></sup>
   * no issues with classes, it works well with composed behaviors
   * you can define multiple behaviors, per same DOM element, through the power of CSS selectors
-  * lazy load any component at any time: all their states are uniquely private per selector and per node (of two selector matche the same element, each selector will represent a component a part, without ever directly interfering with the other)
+  * lazy load any component at any time: all their states are uniquely private per selector and per node
+
+Same `regularElements` API, meaning same `customElements` API.
 
 ```js
 wickedElements.define('[is="wicked-element"]', {
@@ -34,7 +36,9 @@ wickedElements.define('[is="wicked-element"]', {
   ondisconnected(event) { ... },
   onattributechanged(event) { ... }
 
-  // and any ogther event too
+  // and any other event too
+  // just prefix a method with `on` and it will
+  // be automatically setup for listening
   onclick(event) { ... },
 
   // works well with any 3rd parts library
