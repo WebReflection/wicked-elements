@@ -101,7 +101,7 @@ function init(doc) {
   }
   catch(o_O) {
     doc.addEventListener(
-      'DOMNodeInsterted',
+      'DOMNodeInserted',
       function (e) {
         changes([{addedNodes: [e.target]}]);
       },

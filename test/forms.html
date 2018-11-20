@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>wicked forms</title>
+  <style>
+  body {
+    font-family: sans-serif;
+  }
+  fieldset {
+    max-width: 240px;
+  }
+  form.is-login-form {
+    border: 2px solid transparent;
+    padding: 8px;
+  }
+  form.is-login-form label {
+    display: block;
+    display: flex;
+    flex-direction: row;
+  }
+  form.is-login-form input[type="submit"] {
+    float: right;
+    margin-top: 16px;
+  }
+  form.is-login-form input[type="submit"]::after {
+    clear: right;
+  }
+  form.is-login-form label > span {
+    flex-grow: 1;
+  }
+  form.is-login-form.invalid {
+    border: 2px solid red;
+  }
+  </style>
+  <script src="../min.js"></script>
+  <script>
+  wickedElements.define('form.is-login-form', {
+
+    // events
+    onkeyup: function () {
+      this.validate();
+    },
+    onsubmit: function (event) {
+      this.validate();
+      if (this.el.classList.contains('invalid')) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+    },
+
+    // methods
+    validate: function () {
+      this.el.classList.toggle(
+        'invalid',
+        !(this.user.length && this.password.length)
+      );
+    },
+
+    // accessors
+    get user() {
+      return this.el.querySelector('input[name="user"]').value.trim();
+    },
+    get password() {
+      return this.el.querySelector('input[type="password"]').value.trim();
+    }
+
+  });
+  </script>
+</head>
+<body>
+  <fieldset>
+    <legend>Login 1</legend>
+    <form class="is-login-form" action="?">
+      <label><span>User</span> <input name="user"></label>
+      <label><span>Password</span> <input type="password"></label>
+      <input type="submit">
+    </form>
+  </fieldset>
+  <fieldset>
+    <legend>Login 2</legend>
+    <form class="is-login-form" action="?">
+      <label><span>User</span> <input name="user"></label>
+      <label><span>Password</span> <input type="password"></label>
+      <input type="submit">
+    </form>
+  </fieldset>
+</body>
+</html>

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>wicked counter</title>
+  <script src="../min.js"></script>
+  <script>
+  wickedElements.define('div.is-counter', {
+    onclick: function () {
+      var span = this.el.querySelector('span');
+      span.textContent = parseFloat(span.textContent) + 1;
+    }
+  });
+  </script>
+</head>
+<body>
+  <div class="is-counter">
+    <span>0</span>
+    <button>+1</button>
+  </div>
+</body>
+</html>
