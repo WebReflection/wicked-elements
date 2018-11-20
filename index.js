@@ -461,66 +461,75 @@ var wickedElements = (function () {
    * PERFORMANCE OF THIS SOFTWARE.
    */
 
+  // minifier friendly constants
+  var ATTRIBUTE_FILTER = 'attributeFilter';
+  var ONDISCONNECTED = 'ondisconnected';
+  var ONATTRIBUTECHANGED = 'onattributechanged';
+
+  // one off scoped shortcut
   var create = Object.create;
 
-  var wickedElements = {
-    define: function (selector, options) {
-      var ws = new WeakSet$1;
-      var component = assign(
-        {
-          init: function (event) {
-            this.el = event.currentTarget;
-          },
-          handleEvent: function (event) {
-            var type = 'on' + event.type;
-            if (type in this)
-              this[type](event);
-          }
-        },
-        options
-      );
-      var setup = {
-        handleEvent: function (event) {
+  // get() and whenDefined() are just the same
+  // NOTE: the component is not returned,
+  //       only its initial definition.
+  //       This works well in terms of security
+  //       so that a component prototype won't be
+  //       exposed directly through the API.
+  var wickedElements = create(regularElements, {
+    define: {
+      value: function (selector, component) {
+        var ws = new WeakSet$1;
+        var setup = function (event) {
           var el = event.currentTarget;
-          el.removeEventListener(event.type, setup);
+          var type = event.type;
+          el.removeEventListener(type, setup);
           if (!ws.has(el)) {
             ws.add(el);
-            var handler = create(component);
-            for (var key in component) {
-              if (/^on/.test(key))
-                el.addEventListener(key.slice(2), handler, false);
-            }
-            handler.init(event);
-            handler.handleEvent(event);
+            bootstrap$1(component, event, el, 'on' + type);
           }
+        };
+        var definition = {onconnected: setup};
+        if (ONDISCONNECTED in component)
+          definition[ONDISCONNECTED] = setup;
+        if (ONATTRIBUTECHANGED in component) {
+          definition[ONATTRIBUTECHANGED] = setup;
+          definition[ATTRIBUTE_FILTER] = component[ATTRIBUTE_FILTER] || [];
         }
-      };
-      var onconnected = options.onconnected;
-      var ondisconnected = options.ondisconnected;
-      var onattributechanged = options.onattributechanged;
-      var definition = {component: component, onconnected: setup};
-      if (onconnected)
-        component.onconnected = onconnected;
-      if (ondisconnected)
-        definition.ondisconnected = setup;
-      if (onattributechanged) {
-        definition.onattributechanged = setup;
-        definition.attributeFilter = options.attributeFilter || [];
+        addIfNeeded(component, 'init', init$1);
+        addIfNeeded(component, 'handleEvent', handleEvent);
+        regularElements.define(selector, definition);
       }
-      regularElements.define(selector, definition);
-    },
-    get: function (selector) {
-      var definition = regularElements.get(selector);
-      return copyComponent(definition);
-    },
-    whenDefined: function (selector) {
-      var definition = regularElements.whenDefined(selector);
-      return definition.then(copyComponent);
     }
-  };
+  });
 
-  function copyComponent(definition) {
-    return definition ? assign({}, definition.component) : definition;
+  function addIfNeeded(component, key, value) {
+    if (!(key in component))
+      component[key] = value;
+  }
+
+  function bootstrap$1(component, event, el, method) {
+    var handler = create(component);
+    var invoke = false;
+    for (var key in component) {
+      if (key.slice(0, 2) === 'on') {
+        el.addEventListener(key.slice(2), handler, false);
+        if (key === method)
+          invoke = !invoke;
+      }
+    }
+    handler.init(event);
+    if (invoke)
+      handler.handleEvent(event);
+  }
+
+  function handleEvent(event) {
+    var type = 'on' + event.type;
+    if (type in this)
+      this[type](event);
+  }
+
+  function init$1(event) {
+    this.el = event.currentTarget;
   }
 
   

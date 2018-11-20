@@ -13,10 +13,10 @@
         this.el = event.currentTarget;
         log('init', this.el);
       },
-      onclick(event) {
+      onclick: function (event) {
         log(event.type);
       },
-      ondblclick(event) {
+      ondblclick: function (event) {
         log(event.type);
         this.el.parentNode.removeChild(this.el);
       },
