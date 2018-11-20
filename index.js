@@ -479,15 +479,6 @@ var wickedElements = (function () {
     define: {
       value: function (selector, component) {
         var ws = new WeakSet$1;
-        var setup = function (event) {
-          var el = event.currentTarget;
-          var type = event.type;
-          el.removeEventListener(type, setup);
-          if (!ws.has(el)) {
-            ws.add(el);
-            bootstrap$1(component, event, el, 'on' + type);
-          }
-        };
         var definition = {onconnected: setup};
         if (ONDISCONNECTED in component)
           definition[ONDISCONNECTED] = setup;
@@ -498,6 +489,15 @@ var wickedElements = (function () {
         addIfNeeded(component, 'init', init$1);
         addIfNeeded(component, 'handleEvent', handleEvent);
         regularElements.define(selector, definition);
+        function setup(event) {
+          var el = event.currentTarget;
+          var type = event.type;
+          el.removeEventListener(type, setup);
+          if (!ws.has(el)) {
+            ws.add(el);
+            bootstrap$1(component, event, el, 'on' + type);
+          }
+        }
       }
     }
   });

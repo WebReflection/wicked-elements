@@ -36,15 +36,6 @@ var wickedElements = create(regularElements, {
   define: {
     value: function (selector, component) {
       var ws = new WeakSet;
-      var setup = function (event) {
-        var el = event.currentTarget;
-        var type = event.type;
-        el.removeEventListener(type, setup);
-        if (!ws.has(el)) {
-          ws.add(el);
-          bootstrap(component, event, el, 'on' + type);
-        }
-      };
       var definition = {onconnected: setup};
       if (ONDISCONNECTED in component)
         definition[ONDISCONNECTED] = setup;
@@ -55,6 +46,15 @@ var wickedElements = create(regularElements, {
       addIfNeeded(component, 'init', init);
       addIfNeeded(component, 'handleEvent', handleEvent);
       regularElements.define(selector, definition);
+      function setup(event) {
+        var el = event.currentTarget;
+        var type = event.type;
+        el.removeEventListener(type, setup);
+        if (!ws.has(el)) {
+          ws.add(el);
+          bootstrap(component, event, el, 'on' + type);
+        }
+      }
     }
   }
 });
