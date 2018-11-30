@@ -93,7 +93,9 @@ function disconnected(poly) {'use strict';
         */
       }
       for (var
-        children = node.children,
+        // apparently is node.children || IE11 ... ^_^;;
+        // https://github.com/WebReflection/disconnected/issues/1
+        children = node.children || [],
         length = children.length,
         i = 0; i < length;
         dispatchTarget(children[i++], event, type, counter)

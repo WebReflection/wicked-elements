@@ -17,7 +17,7 @@
   "license": "ISC",
   "devDependencies": {
     "ascjs": "^2.5.1",
-    "regular-elements": "^0.3.6",
+    "regular-elements": "^0.3.7",
     "rollup": "^0.67.3",
     "uglify-js": "^2.8.29"
   },
