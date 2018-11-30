@@ -6,25 +6,25 @@
   "module": "esm/index.js",
   "unpkg": "min.js",
   "scripts": {
-    "build": "npm run 3rd-parts && ascjs esm cjs && rollup --config rollup.config.js && npm run cleanup && npm run min && npm run size",
-    "3rd-parts": "npm run 3rd-regular-elements",
-    "3rd-regular-elements": "cp -R node_modules/regular-elements/esm/* esm/3rd/regular-elements",
+    "build": "ascjs esm cjs && rollup --config rollup.config.js && npm run cleanup && npm run min && npm run size",
     "min": "echo \"/*! (c) Andrea Giammarchi (ISC) */$(uglifyjs index.js --support-ie8 -c -m)\" > min.js",
     "size": "cat min.js | gzip -9 | wc -c && cat min.js | brotli | wc -c",
-    "cleanup": "cat index.js|sed 's/(exports)/()/'|sed 's/return exports;/return wickedElements;/'|sed -e 's/exports.*;//g'|sed 's/({})/()/'>index.clean&&mv index.clean index.js"
+    "cleanup": "cat index.js|sed 's/(exports)/(Object)/'|sed 's/return exports;/return wickedElements;/'|sed -e 's/exports.*;//g'|sed 's/({})/(Object)/'>index.clean&&mv index.clean index.js"
   },
   "author": "Andrea Giammarchi",
   "license": "ISC",
   "devDependencies": {
     "ascjs": "^2.5.1",
-    "regular-elements": "^0.3.7",
     "rollup": "^0.67.3",
+    "rollup-plugin-node-resolve": "^3.4.0",
     "uglify-js": "^3.4.9"
   },
   "directories": {
     "test": "test"
   },
-  "dependencies": {},
+  "dependencies": {
+    "regular-elements": "^0.3.7"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/WebReflection/wicked-elements.git"

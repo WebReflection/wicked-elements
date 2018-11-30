@@ -9,15 +9,20 @@ Bringing the [regularElements](https://github.com/WebReflection/regular-elements
   * CPU & RAM friendly <sup><sub>(100% based on [handleEvent](https://medium.com/@WebReflection/dom-handleevent-a-cross-platform-standard-since-year-2000-5bf17287fd38) through prototypal inheritance)</sub></sup>
   * components can exist at any time <sup><sub>(past, present, future)</sub></sup>
   * no issues with classes, it works well with composed behaviors
+  * you can use classes if you like anyway, just pass one instead of a literal!
   * you can define multiple behaviors, per same DOM element, through the power of CSS selectors
   * lazy load any component at any time: all their states are uniquely private per selector and per node
+  * either `attributeFilter` or `observedAttributes` can be used to observe specific attributes
 
 Same `regularElements` API, meaning same `customElements` API.
 
 ```js
+// either via classes (ES2015+)
+// wickedElements.define('[is="wicked-element"]', class { ... });
+// or literals (ES5+)
 wickedElements.define('[is="wicked-element"]', {
 
-  // always triggered once a node is live
+  // always triggered once a node is live (even with classes)
   // always right before onconnected and only once,
   // ideal to setup anything as one off operation
   init: function (event) {
@@ -59,4 +64,31 @@ wickedElements.define('[is="wicked-element"]', {
     return hyperHTML.bind(this.el);
   }
 });
+```
+
+Examples to list specific attributes:
+
+```js
+// literals
+wickedElements.define('...', {
+  // ...
+  observedAttributes: ['only', 'these'],
+  // **OR**
+  attributeFilter: ['only', 'these']
+  // ...
+});
+
+// classes
+wickedElements.define('...', class {
+  // ...
+  static get observedAttributes() {
+    return ['only', 'these'];
+  }
+  // **OR**
+  get attributeFilter() {
+    return [];
+  }
+  // ...
+});
+
 ```

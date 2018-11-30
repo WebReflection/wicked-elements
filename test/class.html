@@ -7,27 +7,29 @@
   <title>wickedElements</title>
   <script src="../min.js"></script>
   <script>
-  this.onload = function () {
-    wickedElements.define('[is="wicked-element"]', {
-      observedAttributes: ['test'],
-      init: function (event) {
+  this.onload = function () {'use strict';
+    wickedElements.define('[is="wicked-element"]', class {
+      static get observedAttributes() {
+        return ['test'];
+      }
+      init(event) {
         this.el = event.currentTarget;
         log('init', this.el);
-      },
-      onclick: function (event) {
+      }
+      onclick(event) {
         log(event.type);
-      },
-      ondblclick: function (event) {
+      }
+      ondblclick(event) {
         log(event.type);
         this.el.parentNode.removeChild(this.el);
-      },
-      onconnected: function (event) {
+      }
+      onconnected(event) {
         log(event.type);
-      },
-      ondisconnected: function (event) {
+      }
+      ondisconnected(event) {
         log(event.type);
-      },
-      onattributechanged: function (event) {
+      }
+      onattributechanged(event) {
         log(event.type);
       }
     });

@@ -1,4 +1,4 @@
-var wickedElements = (function () {
+var wickedElements = (function (Object) {
   'use strict';
 
   /**
@@ -465,13 +465,15 @@ var wickedElements = (function () {
 
   // minifier friendly constants
   var ATTRIBUTE_FILTER = 'attributeFilter';
+  var OBSERVED_ATTRIBUTES = 'observedAttributes';
   var ONDISCONNECTED = 'ondisconnected';
   var ONATTRIBUTECHANGED = 'onattributechanged';
 
   // one off scoped shortcut
   var create = Object.create;
+  var defineProperty = Object.defineProperty;
+  var getOwnPropertyNames = Object.getOwnPropertyNames;
 
-  // get() and whenDefined() are just the same
   // NOTE: the component is not returned,
   //       only its initial definition.
   //       This works well in terms of security
@@ -482,14 +484,20 @@ var wickedElements = (function () {
       value: function (selector, component) {
         var ws = new WeakSet$1;
         var definition = {onconnected: setup};
-        if (ONDISCONNECTED in component)
+        var isClass = typeof component === 'function';
+        var proto = isClass ? component.prototype : component;
+        if (ONDISCONNECTED in proto)
           definition[ONDISCONNECTED] = setup;
-        if (ONATTRIBUTECHANGED in component) {
+        if (ONATTRIBUTECHANGED in proto) {
           definition[ONATTRIBUTECHANGED] = setup;
-          definition[ATTRIBUTE_FILTER] = component[ATTRIBUTE_FILTER] || [];
+          definition[ATTRIBUTE_FILTER] =
+            (isClass ?
+              component[OBSERVED_ATTRIBUTES] :
+              proto[OBSERVED_ATTRIBUTES]) ||
+            proto[ATTRIBUTE_FILTER] || [];
         }
-        addIfNeeded(component, 'init', init$1);
-        addIfNeeded(component, 'handleEvent', handleEvent);
+        addIfNeeded(proto, 'init', init$1);
+        addIfNeeded(proto, 'handleEvent', handleEvent);
         regularElements.define(selector, definition);
         function setup(event) {
           var el = event.currentTarget;
@@ -497,7 +505,10 @@ var wickedElements = (function () {
           el.removeEventListener(type, setup);
           if (!ws.has(el)) {
             ws.add(el);
-            bootstrap$1(component, event, el, 'on' + type);
+            bootstrap$1(
+              isClass ? new component : create(proto),
+              proto, event, el, 'on' + type
+            );
           }
         }
       }
@@ -506,13 +517,17 @@ var wickedElements = (function () {
 
   function addIfNeeded(component, key, value) {
     if (!(key in component))
-      component[key] = value;
+      defineProperty(component, key, {value: value});
   }
 
-  function bootstrap$1(component, event, el, method) {
-    var handler = create(component);
-    var invoke = false;
-    for (var key in component) {
+  function bootstrap$1(handler, proto, event, el, method) {
+    for (var
+      key,
+      invoke = false,
+      keys = getOwnPropertyNames(proto),
+      i = 0, length = keys.length; i < length; i++
+    ) {
+      key = keys[i];
       if (key.slice(0, 2) === 'on') {
         el.addEventListener(key.slice(2), handler, false);
         if (key === method)
@@ -538,4 +553,4 @@ var wickedElements = (function () {
 
   return wickedElements;
 
-}());
+}(Object));
