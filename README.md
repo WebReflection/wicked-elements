@@ -1,5 +1,7 @@
 # wickedElements
 
+[![Build Status](https://travis-ci.com/WebReflection/wicked-elements.svg?branch=master)](https://travis-ci.com/WebReflection/wicked-elements) ![WebReflection status](https://offline.report/status/webreflection.svg)
+
 Bringing the [regularElements](https://github.com/WebReflection/regular-elements) goodness to a component based world.
 
   * no polyfills needed, it works [down to IE9](https://webreflection.github.io/wicked-elements/test/)
