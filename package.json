@@ -23,7 +23,7 @@
     "test": "test"
   },
   "dependencies": {
-    "regular-elements": "^0.3.7"
+    "regular-elements": "^0.4.0"
   },
   "repository": {
     "type": "git",
