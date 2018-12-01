@@ -17,8 +17,8 @@
  * PERFORMANCE OF THIS SOFTWARE.
  */
 
+const WeakSet = (m => m.__esModule ? m.default : m)(require('@ungap/weakset'));
 const regularElements = (m => m.__esModule ? m.default : m)(require('regular-elements'));
-const {WeakSet} = require('regular-elements');
 
 // minifier friendly constants
 var ATTRIBUTE_FILTER = 'attributeFilter';

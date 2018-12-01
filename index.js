@@ -1,122 +1,55 @@
 var wickedElements = (function (Object) {
   'use strict';
 
-  /**
-   * ISC License
-   *
-   * Copyright (c) 2018, Andrea Giammarchi, @WebReflection
-   *
-   * Permission to use, copy, modify, and/or distribute this software for any
-   * purpose with or without fee is hereby granted, provided that the above
-   * copyright notice and this permission notice appear in all copies.
-   *
-   * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-   * REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
-   * AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-   * INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
-   * LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE
-   * OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
-   * PERFORMANCE OF THIS SOFTWARE.
-   */
-
-  var $Event;
-
-  try {
-    new Event('!');
-    $Event = Event;
-  } catch(o_O) {
-    try {
-      new CustomEvent('!');
-      $Event = CustomEvent;
-    } catch(o_O) {
-      $Event = function (type) {
-        var e = document.createEvent('Event');
-        e.initEvent(type, false, false);
-        return e;
+  /*! (c) Andrea Giammarchi - ISC */
+  var self = null || /* istanbul ignore next */ {};
+  try { self.WeakSet = WeakSet; }
+  catch (WeakSet) {
+    // requires a global WeakMap (IE11+)
+    (function (WeakMap) {
+      var all = new WeakMap;
+      var proto = WeakSet.prototype;
+      proto.add = function (value) {
+        return all.get(this).set(value, 1), this;
       };
-    }
+      proto.delete = function (value) {
+        return all.get(this).delete(value);
+      };
+      proto.has = function (value) {
+        return all.get(this).has(value);
+      };
+      self.WeakSet = WeakSet;
+      function WeakSet(iterable) {
+        all.set(this, new WeakMap);
+        if (iterable)
+          iterable.forEach(this.add, this);
+      }
+    }(WeakMap));
   }
+  var WeakSet$1 = self.WeakSet;
 
-  var Event$1 = $Event;
-
-  /**
-   * ISC License
-   *
-   * Copyright (c) 2018, Andrea Giammarchi, @WebReflection
-   *
-   * Permission to use, copy, modify, and/or distribute this software for any
-   * purpose with or without fee is hereby granted, provided that the above
-   * copyright notice and this permission notice appear in all copies.
-   *
-   * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-   * REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
-   * AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-   * INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
-   * LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE
-   * OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
-   * PERFORMANCE OF THIS SOFTWARE.
-   */
-
-  var $WeakSet;
-
-  try {
-    $WeakSet = (new WeakSet).constructor;
-  } catch(o_O) {
-    try {
-      // IE11 apparently has WeakMap but no WeakSet
-      o_O = ($WeakSet = new WeakMap && function () {
-        this.$ = new WeakMap;
-      }).prototype;
-      o_O.add = function (O) {
-        this.$.set(O, 0);
-        return this;
-      };
-      o_O.has = function (O) {
-        return this.$.has(O);
-      };
-      o_O.delete = function (O) {
-        return this.$.delete(O);
-      };
-    } catch(o_O) {
-      // all other browsers
-      var i = 0;
-      o_O = ($WeakSet = function () {
-        this.$ = ['__', Math.random(), i++, '__'].join('ws');
-      }).prototype;
-      o_O.add = function (O) {
-        if (!this.has(O))
-          Object.defineProperty(O, this.$, {value:true, configurable:true});
-        return this;
-      };
-      o_O.has = function (O) {
-        return this.hasOwnProperty.call(O, this.$);
-      };
-      o_O.delete = function (O) {
-        return delete O[this.$];
-      };
-    }
+  /*! (c) Andrea Giammarchi - ISC */
+  var self$1 = null || /* istanbul ignore next */ {};
+  try { self$1.CustomEvent = new CustomEvent('.').constructor; }
+  catch (CustomEvent) {
+    self$1.CustomEvent = function CustomEvent(type, init) {
+      if (!init)
+        init = {};
+      var bubbles = !!init.bubbles;
+      var cancelable = !!init.cancelable;
+      var e = document.createEvent('Event');
+      e.initEvent(type, bubbles, cancelable);
+      e.detail = init.detail;
+      try {
+        e.bubbles = bubbles;
+        e.cancelable = cancelable;
+      } catch (e) {}
+      return e;
+    };
   }
+  var CustomEvent$1 = self$1.CustomEvent;
 
-  var WeakSet$1 = $WeakSet;
-
-  /**
-   * ISC License
-   *
-   * Copyright (c) 2018, Andrea Giammarchi, @WebReflection
-   *
-   * Permission to use, copy, modify, and/or distribute this software for any
-   * purpose with or without fee is hereby granted, provided that the above
-   * copyright notice and this permission notice appear in all copies.
-   *
-   * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-   * REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
-   * AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-   * INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
-   * LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE
-   * OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
-   * PERFORMANCE OF THIS SOFTWARE.
-   */
-
+  /*! (c) Andrea Giammarchi - ISC */
   var assign = Object.assign || function (target) {
     for (var o, i = 1; i < arguments.length; i++) {
       o = arguments[i] || {};
@@ -128,38 +61,33 @@ var wickedElements = (function (Object) {
     return target;
   };
 
-  // borrowed from https://github.com/WebReflection/dom4/blob/master/src/dom4.js#L361
-  var contains = document.contains || function (el) {
-    while (el && el !== this) el = el.parentNode;
-    return this === el;
-  };
-
-  var indexOf = [].indexOf;
-
+  /*! (c) Andrea Giammarchi - ISC */
   // borrowed from https://github.com/WebReflection/dom4/blob/master/src/dom4.js#L130
-  var matches = 'matches' in document.documentElement ?
-    function (el, selector) {
-      return el.matches(selector);
-    } :
-    function (el, selector) {
-      return (
-        el.matchesSelector ||
-        el.webkitMatchesSelector ||
-        el.khtmlMatchesSelector ||
-        el.mozMatchesSelector ||
-        el.msMatchesSelector ||
-        el.oMatchesSelector ||
-        fallback
-      ).call(el, selector);
-    };
-
-  function fallback(selector) {
-    var parentNode = this.parentNode;
-    return !!parentNode && -1 < indexOf.call(
-      parentNode.querySelectorAll(selector),
-      this
-    );
-  }
+  var elementMatches = (function (indexOf) {
+    return 'matches' in document.documentElement ?
+      function (selector) {
+        return this.matches(selector);
+      } :
+      function (selector) {
+        var el = this;
+        return (
+          el.matchesSelector ||
+          el.webkitMatchesSelector ||
+          el.khtmlMatchesSelector ||
+          el.mozMatchesSelector ||
+          el.msMatchesSelector ||
+          el.oMatchesSelector ||
+          fallback
+        ).call(el, selector);
+      };
+    function fallback(selector) {
+      var parentNode = this.parentNode;
+      return !!parentNode && -1 < indexOf.call(
+        parentNode.querySelectorAll(selector),
+        this
+      );
+    }
+  }([].indexOf));
 
   /*! (c) Andrea Giammarchi */
   function attributechanged(poly) {  var Event = poly.Event;
@@ -325,6 +253,12 @@ var wickedElements = (function (Object) {
    * PERFORMANCE OF THIS SOFTWARE.
    */
 
+  var poly = {Event: CustomEvent$1, WeakSet: WeakSet$1};
+  var contains = document.contains || function (el) {
+    while (el && el !== this) el = el.parentNode;
+    return this === el;
+  };
+
   var bootstrap = true;
 
   var query = [];
@@ -333,14 +267,10 @@ var wickedElements = (function (Object) {
   var known = {};
 
   var regularElements = {
-    Event: Event$1,
-    WeakSet: WeakSet$1,
-    assign: assign,
-    document: document,
     define: function (selector, options) {
       if (bootstrap) {
         bootstrap = false;
-        init(regularElements.document);
+        init(document);
       }
       var type = typeof selector;
       if (type === 'string') {
@@ -374,9 +304,9 @@ var wickedElements = (function (Object) {
   };
 
   // passing along regularElements as poly for Event and WeakSet
-  var lifecycle = disconnected(regularElements);
+  var lifecycle = disconnected(poly);
   var observe = {
-    attributechanged: attributechanged(regularElements),
+    attributechanged: attributechanged(poly),
     connected: lifecycle,
     disconnected: lifecycle
   };
@@ -406,7 +336,7 @@ var wickedElements = (function (Object) {
 
   function ready() {
     if (query.length)
-      setupList(regularElements.document.querySelectorAll(query), true);
+      setupList(document.querySelectorAll(query), true);
   }
 
   function setup(node) {
@@ -414,7 +344,7 @@ var wickedElements = (function (Object) {
     for (var ws, css, i = 0, length = query.length; i < length; i++) {
       css = query[i];
       ws = known[css] || (known[css] = new WeakSet$1);
-      if (!ws.has(node) && matches(node, query[i])) {
+      if (!ws.has(node) && elementMatches.call(node, query[i])) {
         ws.add(node);
         setupListeners(node, config[i]);
       }
@@ -434,8 +364,8 @@ var wickedElements = (function (Object) {
     if (method) {
       observe[type](node, options.attributeFilter)
         .addEventListener(type, method, false);
-      if (dispatch && contains.call(regularElements.document, node))
-        node.dispatchEvent(new Event$1(type));
+      if (dispatch && contains.call(document, node))
+        node.dispatchEvent(new CustomEvent$1(type));
     }
   }
 

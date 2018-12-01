@@ -16,7 +16,8 @@
  * PERFORMANCE OF THIS SOFTWARE.
  */
 
-import regularElements, {WeakSet} from 'regular-elements';
+import WeakSet from '@ungap/weakset';
+import regularElements from 'regular-elements';
 
 // minifier friendly constants
 var ATTRIBUTE_FILTER = 'attributeFilter';
