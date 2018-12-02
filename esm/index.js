@@ -29,6 +29,8 @@ var ONATTRIBUTECHANGED = 'onattributechanged';
 var create = Object.create;
 var defineProperty = Object.defineProperty;
 var getOwnPropertyNames = Object.getOwnPropertyNames;
+var getPrototypeOf = Object.getPrototypeOf;
+var root = Object.prototype;
 
 // NOTE: the component is not returned,
 //       only its initial definition.
@@ -79,18 +81,20 @@ function addIfNeeded(component, key, value) {
 }
 
 function bootstrap(handler, proto, event, el, method) {
-  for (var
-    key,
-    invoke = false,
-    keys = getOwnPropertyNames(proto),
-    i = 0, length = keys.length; i < length; i++
-  ) {
-    key = keys[i];
-    if (key.slice(0, 2) === 'on') {
-      el.addEventListener(key.slice(2), handler, false);
-      if (key === method)
-        invoke = !invoke;
+  var invoke = false;
+  while (proto !== root) {
+    var keys = getOwnPropertyNames(proto);
+    var i = 0;
+    var length = keys.length;
+    while (i < length) {
+      var key = keys[i++];
+      if (key.slice(0, 2) === 'on') {
+        el.addEventListener(key.slice(2), handler, false);
+        if (key === method && !invoke)
+          invoke = !invoke;
+      }
     }
+    proto = getPrototypeOf(proto);
   }
   handler.init(event);
   if (invoke)
