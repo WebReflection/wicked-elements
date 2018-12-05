@@ -24,7 +24,7 @@
   },
   "dependencies": {
     "@ungap/weakset": "^0.1.5",
-    "regular-elements": "^0.4.2"
+    "regular-elements": "^0.4.3"
   },
   "repository": {
     "type": "git",

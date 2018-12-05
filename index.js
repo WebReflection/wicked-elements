@@ -30,23 +30,18 @@ var wickedElements = (function (Object) {
 
   /*! (c) Andrea Giammarchi - ISC */
   var self$1 = null || /* istanbul ignore next */ {};
-  try { self$1.CustomEvent = new CustomEvent('.').constructor; }
-  catch (CustomEvent) {
-    self$1.CustomEvent = function CustomEvent(type, init) {
-      if (!init)
-        init = {};
-      var bubbles = !!init.bubbles;
-      var cancelable = !!init.cancelable;
-      var e = document.createEvent('Event');
-      e.initEvent(type, bubbles, cancelable);
-      e.detail = init.detail;
-      try {
-        e.bubbles = bubbles;
-        e.cancelable = cancelable;
-      } catch (e) {}
-      return e;
-    };
-  }
+  self$1.CustomEvent = typeof CustomEvent === 'function' ?
+    CustomEvent :
+    (function (__p__) {
+      CustomEvent[__p__] = new CustomEvent('').constructor[__p__];
+      return CustomEvent;
+      function CustomEvent(type, init) {
+        if (!init) init = {};
+        var e = document.createEvent('CustomEvent');
+        e.initCustomEvent(type, !!init.bubbles, !!init.cancelable, init.detail);
+        return e;
+      }
+    }('prototype'));
   var CustomEvent$1 = self$1.CustomEvent;
 
   /*! (c) Andrea Giammarchi - ISC */

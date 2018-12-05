@@ -9,10 +9,16 @@
   <script>
   this.onload = function () {
     wickedElements.define('[is="wicked-element"]', {
-      observedAttributes: ['test'],
+      observedAttributes: [],
       init: function (event) {
         this.el = event.currentTarget;
-        log('init', this.el);
+        var json = this.el.dataset.json;
+        if (json)
+          this.ondata({detail: JSON.parse(json)});
+      },
+      ondata(event) {
+        this.data = event.detail;
+        log(this.data);
       },
       onclick: function (event) {
         log(event.type);
@@ -28,7 +34,9 @@
         log(event.type);
       },
       onattributechanged: function (event) {
-        log(event.type);
+        if (event.attributeName === 'data-json')
+          this.ondata({detail: JSON.parse(event.newValue || '{}')});
+        log(event.attributeName);
       }
     });
     setTimeout(function () {
