@@ -14,6 +14,14 @@ Bringing the [regularElements](https://github.com/WebReflection/regular-elements
   * lazy load any component at any time: all their states are uniquely private per selector and per node
   * either `attributeFilter` or `observedAttributes` can be used to observe specific attributes
 
+### How to
+
+  * as CDN global object, via `<script src="https://unpkg.com/wicked-elements"></script>`
+  * as EXM module, via `import wickedElements from 'wicked-elements'`
+  * as CJS module, via `const wicledElements = require('wicked-elements');`
+
+### API
+
 Same `regularElements` API, meaning same `customElements` API.
 
 ```js
