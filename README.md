@@ -17,8 +17,8 @@ Bringing the [regularElements](https://github.com/WebReflection/regular-elements
 ### How to
 
   * as CDN global object, via `<script src="https://unpkg.com/wicked-elements"></script>`
-  * as EXM module, via `import wickedElements from 'wicked-elements'`
-  * as CJS module, via `const wicledElements = require('wicked-elements');`
+  * as ESM module, via `import wickedElements from 'wicked-elements'`
+  * as CJS module, via `const wickedElements = require('wicked-elements');`
 
 ### API
 
@@ -47,14 +47,14 @@ wickedElements.define('[is="wicked-element"]', {
   },
 
   // regularElements hooks available
-  onconnected(event) { ... },
-  ondisconnected(event) { ... },
-  onattributechanged(event) { ... }
+  onconnected(event) {},
+  ondisconnected(event) {},
+  onattributechanged(event) {},
 
   // and any other event too
   // just prefix a method with `on` and it will
   // be automatically setup for listening
-  onclick(event) { ... },
+  onclick(event) {},
 
   // works well with any 3rd parts library
   // WARNING: THIS IS JUST AS EXAMPLE,
