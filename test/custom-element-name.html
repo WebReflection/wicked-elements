@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>custom element name</title>
+  <style>
+    my-counter {
+      color: red;
+    }
+  </style>
+  <script src="../min.js"></script>
+  <script>
+  wickedElements.define('my-counter, .some-non-matching-example-selector', {
+    onclick: function () {
+      var span = this.el.querySelector('span');
+      span.textContent = parseFloat(span.textContent) + 1;
+    }
+  });
+  </script>
+</head>
+<body>
+  <my-counter>
+    <span>0</span>
+    <button>+1</button>
+  </my-counter>
+</body>
+</html>
