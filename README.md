@@ -10,6 +10,7 @@ Bringing the [regularElements](https://github.com/WebReflection/regular-elements
   * components can exist at any time <sup><sub>(past, present, future)</sub></sup>
   * no issues with classes, it works well with composed behaviors
   * you can use classes if you like anyway, just pass one instead of a literal!
+  * you can use wicked elements as an alternative custom elements polyfill in combination with own element names (e.g. `my-wicked-element`)
   * you can define multiple behaviors, per same DOM element, through the power of CSS selectors
   * lazy load any component at any time: all their states are uniquely private per selector and per node
   * either `attributeFilter` or `observedAttributes` can be used to observe specific attributes
@@ -72,6 +73,14 @@ wickedElements.define('[is="wicked-element"]', {
     return hyperHTML.bind(this.el);
   }
 });
+
+// you can also attach the wicked element behaviour to
+// custom element names without defining a custom
+// element via `customElements.define(...)`
+wickedElements.define('wicked-element', {
+  // ...
+});
+
 ```
 
 Examples to list specific attributes:
