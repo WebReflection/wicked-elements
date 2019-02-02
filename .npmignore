@@ -7,3 +7,4 @@ _config.yml
 .travis.yml
 package-lock.json
 rollup.config.js
+in-a-nutshell.js
