@@ -9,7 +9,8 @@
     "build": "ascjs esm cjs && rollup --config rollup.config.js && npm run cleanup && npm run min && npm run size",
     "min": "echo \"/*! (c) Andrea Giammarchi (ISC) */$(uglifyjs index.js --support-ie8 -c -m)\" > min.js",
     "size": "cat min.js | gzip -9 | wc -c && cat min.js | brotli | wc -c",
-    "cleanup": "cat index.js|sed 's/(exports)/(Object)/'|sed 's/return exports;/return wickedElements;/'|sed -e 's/exports.*;//g'|sed 's/({})/(Object)/'>index.clean&&mv index.clean index.js"
+    "cleanup": "cat index.js|sed 's/(exports)/(Object)/'|sed 's/return exports;/return wickedElements;/'|sed -e 's/exports.*;//g'|sed 's/({})/(Object)/'>index.clean&&mv index.clean index.js",
+    "test": "echo 'use http-server and browse the test folder'"
   },
   "author": "Andrea Giammarchi",
   "license": "ISC",
@@ -18,9 +19,6 @@
     "rollup": "^1.10.1",
     "rollup-plugin-node-resolve": "^4.2.3",
     "uglify-js": "^3.5.9"
-  },
-  "directories": {
-    "test": "test"
   },
   "dependencies": {
     "@ungap/weakset": "^0.1.5",
