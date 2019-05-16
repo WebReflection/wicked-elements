@@ -30,6 +30,7 @@ var create = Object.create;
 var defineProperty = Object.defineProperty;
 var getOwnPropertyNames = Object.getOwnPropertyNames;
 var getPrototypeOf = Object.getPrototypeOf;
+var hasOwnProperty = Object.hasOwnProperty;
 var root = Object.prototype;
 
 // NOTE: the component is not returned,
@@ -57,6 +58,8 @@ var wickedElements = create(regularElements, {
       addIfNeeded(proto, 'init', init);
       addIfNeeded(proto, 'handleEvent', handleEvent);
       regularElements.define(selector, definition);
+      if (hasOwnProperty.call(component, 'style'))
+        injectStyle(component.style);
       function setup(event) {
         var el = event.currentTarget;
         var type = event.type;
@@ -109,4 +112,14 @@ function handleEvent(event) {
 
 function init(event) {
   this.el = event.currentTarget;
+}
+
+function injectStyle(cssText) {
+  var style = document.createElement('style');
+  style.type = 'text/css';
+  if (style.styleSheet)
+    style.styleSheet.cssText = cssText;
+  else
+    style.textContent = cssText;
+  (document.head || document.querySelector('head')).appendChild(style);
 }

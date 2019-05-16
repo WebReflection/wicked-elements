@@ -4,7 +4,7 @@
 
 Bringing the [regularElements](https://github.com/WebReflection/regular-elements) goodness to a component based world.
 
-  * no polyfills needed, it works [down to IE9](https://webreflection.github.io/wicked-elements/test/)
+  * no polyfills needed for IE11+, it [optionally](https://github.com/WebReflection/regular-elements/#compatibility) works [even in IE9](https://webreflection.github.io/wicked-elements/test/)
   * lightweight as in [~2K lightweight](https://unpkg.com/wicked-elements)
   * CPU & RAM friendly <sup><sub>(100% based on [handleEvent](https://medium.com/@WebReflection/dom-handleevent-a-cross-platform-standard-since-year-2000-5bf17287fd38) through prototypal inheritance)</sub></sup>
   * components can exist at any time <sup><sub>(past, present, future)</sub></sup>
@@ -27,9 +27,9 @@ Same `regularElements` API, meaning same `customElements` API.
 
 ```js
 // either via classes (ES2015+)
-// wickedElements.define('[is="wicked-element"]', class { ... });
+// wickedElements.define('.is-wicked-element', class { ... });
 // or literals (ES5+)
-wickedElements.define('[is="wicked-element"]', {
+wickedElements.define('.is-wicked-element', {
 
   // always triggered once a node is live (even with classes)
   // always right before onconnected and only once,
@@ -57,6 +57,15 @@ wickedElements.define('[is="wicked-element"]', {
   // be automatically setup for listening
   onclick(event) {},
 
+  // if there is a style, it'll be injected only once per component
+  // inherited styles won't get injected, and classes needs
+  // a static get style() { return '...'; } if this behavior is needed
+  style: `
+    .is-wicked-element {
+      border: 2px solid silver;
+    }
+  `,
+
   // works well with any 3rd parts library
   // WARNING: THIS IS JUST AS EXAMPLE,
   //          YOU DON'T NEED hyperHTML
@@ -75,18 +84,24 @@ wickedElements.define('[is="wicked-element"]', {
 });
 
 // you can also attach the wicked element behaviour to
-// custom element names without defining a custom
-// element via `customElements.define(...)`
+// custom element names without needing customElements
 wickedElements.define('wicked-element', {
+  // ...
+});
+
+// or even ...
+wickedElements.define('[is="wicked-element"]', {
   // ...
 });
 
 ```
 
-Examples to list specific attributes:
+### Attributes
+
+These are examples to listen to specific attributes:
 
 ```js
-// literals
+// with JS literals
 wickedElements.define('...', {
   // ...
   observedAttributes: ['only', 'these'],
@@ -95,7 +110,7 @@ wickedElements.define('...', {
   // ...
 });
 
-// classes
+// with ES classes
 wickedElements.define('...', class {
   // ...
   static get observedAttributes() {
@@ -103,9 +118,11 @@ wickedElements.define('...', class {
   }
   // **OR**
   get attributeFilter() {
-    return [];
+    return ['only', 'these'];
   }
   // ...
 });
 
 ```
+
+Bear in mind, if the array is empty all attributes changes will be nitified.

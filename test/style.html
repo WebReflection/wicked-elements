@@ -6,10 +6,11 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>wickedElements</title>
   <script>this.WeakMap||document.write('<script src="https://unpkg.com/@ungap/weakmap@0.1.4/min.js"><\x2fscript>')</script>
-  <script src="../min.js"></script>
+  <script src="../index.js"></script>
   <script>
   this.onload = function () {
-    wickedElements.define('[is="wicked-element"]', {
+    wickedElements.define('.is-wicked-element', {
+      style: '.is-wicked-element{ border: 2px solid blue; }',
       observedAttributes: [],
       init: function (event) {
         this.el = event.currentTarget;
@@ -47,6 +48,6 @@
   </script>
 </head>
 <body>
-  <button is="wicked-element">click test</button>
+  <button class="is-wicked-element">click test</button>
 </body>
 </html>
