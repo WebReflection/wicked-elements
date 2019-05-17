@@ -21,8 +21,6 @@ const WeakSet = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* i
 const regularElements = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('regular-elements'));
 
 // minifier friendly constants
-var ATTRIBUTE_FILTER = 'attributeFilter';
-var OBSERVED_ATTRIBUTES = 'observedAttributes';
 var ONDISCONNECTED = 'ondisconnected';
 var ONATTRIBUTECHANGED = 'onattributechanged';
 
@@ -51,11 +49,11 @@ var wickedElements = create(regularElements, {
         definition[ONDISCONNECTED] = setup;
       if (ONATTRIBUTECHANGED in proto) {
         definition[ONATTRIBUTECHANGED] = setup;
-        definition[ATTRIBUTE_FILTER] =
+        definition.attributeFilter =
           (isClass ?
-            component[OBSERVED_ATTRIBUTES] :
-            proto[OBSERVED_ATTRIBUTES]) ||
-          proto[ATTRIBUTE_FILTER] || [];
+            component.observedAttributes :
+            proto.observedAttributes) ||
+          proto.attributeFilter || [];
       }
       addIfNeeded(proto, 'init', init);
       addIfNeeded(proto, 'handleEvent', handleEvent);
@@ -65,7 +63,7 @@ var wickedElements = create(regularElements, {
       function setup(event) {
         var el = event.currentTarget;
         var type = event.type;
-        el.removeEventListener(type, setup);
+        el.removeEventListener(type, setup, false);
         if (!ws.has(el)) {
           ws.add(el);
           bootstrap(
@@ -86,25 +84,32 @@ function addIfNeeded(component, key, value) {
 }
 
 function bootstrap(handler, events, event, el, method) {
+  var init = false;
   var i = 0;
   var length = events.length;
-  while (i < length)
-    el.addEventListener(events[i++], handler, false);
+  while (i < length) {
+    var evt = events[i++];
+    el.addEventListener(evt.type, handler, evt.options);
+    init = (init || evt.type === method);
+  }
   handler.init(event);
-  if (-1 < events.indexOf(method))
+  if (init)
     handler.handleEvent(event);
 }
 
 function getEvents(proto) {
   var events = [];
-  while (proto !== root && proto) {
+  while (proto && proto !== root) {
     var keys = getOwnPropertyNames(proto);
     var i = 0;
     var length = keys.length;
     while (i < length) {
       var key = keys[i++];
-      if (key.slice(0, 2) === 'on')
-        events.push(key.slice(2));
+      if (key.slice(0, 2) === 'on' && key.slice(-7) !== 'Options')
+        events.push({
+          type: key.slice(2),
+          options: proto[key + 'Options'] || false
+        });
     }
     proto = getPrototypeOf(proto);
   }
