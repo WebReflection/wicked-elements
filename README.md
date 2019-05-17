@@ -6,8 +6,8 @@
 
 Bringing the [regularElements](https://github.com/WebReflection/regular-elements) goodness to a component based world.
 
-  * no polyfills needed for IE11+, it [optionally](https://github.com/WebReflection/regular-elements/#compatibility) works [even in IE9](https://webreflection.github.io/wicked-elements/test/)
-  * lightweight as in [~2K lightweight](https://unpkg.com/wicked-elements)
+  * no fancy polyfills needed for IE11+, it [optionally](https://github.com/WebReflection/regular-elements/#compatibility) works [even in IE9](https://webreflection.github.io/wicked-elements/test/)
+  * lightweight as in [~2K lightweight](https://unpkg.com/wicked-elements), with also a [1.7K brotli version](https://unpkg.com/wicked-elements/new.js), for modern browsers only, that drops all unnecessary polyfills for `WeakSet`, `CustomEvent`, `element.matches(...)` or `Object.assign` 🎉
   * CPU & RAM friendly <sup><sub>(100% based on [handleEvent](https://medium.com/@WebReflection/dom-handleevent-a-cross-platform-standard-since-year-2000-5bf17287fd38) through prototypal inheritance)</sub></sup>
   * components can exist at any time <sup><sub>(past, present, future)</sub></sup>
   * no issues with classes, it works well with composed behaviors
@@ -131,4 +131,4 @@ wickedElements.define('...', class {
 
 ```
 
-Bear in mind, if the array is empty all attributes changes will be nitified.
+Bear in mind, if the array is empty all attributes changes will be notified.

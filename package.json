@@ -6,10 +6,13 @@
   "module": "esm/index.js",
   "unpkg": "min.js",
   "scripts": {
-    "build": "ascjs esm cjs && rollup --config rollup.config.js && npm run cleanup && npm run min && npm run size",
-    "min": "echo \"/*! (c) Andrea Giammarchi - ISC */$(uglifyjs index.js -c -m)\" > min.js",
-    "size": "cat min.js | gzip -9 | wc -c && cat min.js | brotli | wc -c",
-    "cleanup": "cat index.js|sed 's/(exports)/(Object)/'|sed 's/return exports;/return wickedElements;/'|sed -e 's/exports.*;//g'|sed 's/({})/(Object)/'>index.clean&&mv index.clean index.js",
+    "build": "ascjs esm cjs && npm run rollup && npm run new && npm run cleanup:min && npm run cleanup:new && npm run min && npm run size",
+    "new": "rollup --config es.config.js",
+    "min": "echo \"/*! (c) Andrea Giammarchi - ISC */$(uglifyjs index.js -c -m)\" > min.js && echo \"/*! (c) Andrea Giammarchi - ISC */$(uglifyjs modern.js -c -m)\" > new.js",
+    "rollup": "rollup --config rollup.config.js",
+    "size": "cat min.js | gzip -9 | wc -c && cat min.js | brotli | wc -c && cat new.js | gzip -9 | wc -c && cat new.js | brotli | wc -c",
+    "cleanup:min": "cat modern.js|sed 's/(exports)/(Object)/'|sed 's/return exports;/return wickedElements;/'|sed -e 's/exports.*;//g'|sed 's/({})/(Object)/'|sed 's/var wickedElements =/var wickedElements = wickedElements ||/'>modern.clean&&mv modern.clean modern.js",
+    "cleanup:new": "cat index.js|sed 's/(exports)/(Object)/'|sed 's/return exports;/return wickedElements;/'|sed -e 's/exports.*;//g'|sed 's/({})/(Object)/'>index.clean&&mv index.clean index.js",
     "test": "echo 'use http-server and browse the test folder'"
   },
   "author": "Andrea Giammarchi",
@@ -17,6 +20,7 @@
   "devDependencies": {
     "ascjs": "^3.0.1",
     "rollup": "^1.10.1",
+    "rollup-plugin-includepaths": "^0.2.3",
     "rollup-plugin-node-resolve": "^5.0.0",
     "uglify-js": "^3.5.9"
   },

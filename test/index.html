@@ -5,8 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>wickedElements</title>
-  <script>this.WeakMap||document.write('<script src="https://unpkg.com/@ungap/weakmap@0.1.4/min.js"><\x2fscript>')</script>
-  <script src="../min.js"></script>
+  <!-- this is optional for IE < 11 -->
+  <script>this.WeakMap||document.write( '<script src="https://unpkg.com/@ungap/weakmap@0.1.4/min.js"><\x2fscript>')</script>
+  <!-- this is optional for IE11 -->
+  <script>this.WeakSet||document.write( '<script src="../min.js"><\x2fscript>')</script>
+  <!-- this is for everything else -->
+  <script src="../new.js"></script>
   <script>
   this.onload = function () {
     wickedElements.define('[is="wicked-element"]', {
