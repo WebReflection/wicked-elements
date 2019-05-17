@@ -7,7 +7,7 @@
   "unpkg": "min.js",
   "scripts": {
     "build": "ascjs esm cjs && rollup --config rollup.config.js && npm run cleanup && npm run min && npm run size",
-    "min": "echo \"/*! (c) Andrea Giammarchi (ISC) */$(uglifyjs index.js --support-ie8 -c -m)\" > min.js",
+    "min": "echo \"/*! (c) Andrea Giammarchi - ISC */$(uglifyjs index.js -c -m)\" > min.js",
     "size": "cat min.js | gzip -9 | wc -c && cat min.js | brotli | wc -c",
     "cleanup": "cat index.js|sed 's/(exports)/(Object)/'|sed 's/return exports;/return wickedElements;/'|sed -e 's/exports.*;//g'|sed 's/({})/(Object)/'>index.clean&&mv index.clean index.js",
     "test": "echo 'use http-server and browse the test folder'"

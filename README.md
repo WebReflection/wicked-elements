@@ -59,6 +59,10 @@ wickedElements.define('.is-wicked-element', {
   // be automatically setup for listening
   onclick(event) {},
 
+  // define optional options for specific events
+  // any `on${event.type}Options` would work
+  onclickOptions: {once: true},
+
   // if there is a style, it'll be injected only once per component
   // inherited styles won't get injected, and classes needs
   // a static get style() { return '...'; } if this behavior is needed
