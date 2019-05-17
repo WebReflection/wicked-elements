@@ -45,6 +45,7 @@ var wickedElements = create(regularElements, {
       var definition = {onconnected: setup};
       var isClass = typeof component === 'function';
       var proto = isClass ? component.prototype : component;
+      var events = getEvents(proto);
       if (ONDISCONNECTED in proto)
         definition[ONDISCONNECTED] = setup;
       if (ONATTRIBUTECHANGED in proto) {
@@ -68,7 +69,7 @@ var wickedElements = create(regularElements, {
           ws.add(el);
           bootstrap(
             isClass ? new component : create(proto),
-            proto, event, el, 'on' + type
+            events, event, el, type
           );
         }
       }
@@ -83,25 +84,30 @@ function addIfNeeded(component, key, value) {
     defineProperty(component, key, {value: value});
 }
 
-function bootstrap(handler, proto, event, el, method) {
-  var invoke = false;
-  while (proto !== root) {
+function bootstrap(handler, events, event, el, method) {
+  var i = 0;
+  var length = events.length;
+  while (i < length)
+    el.addEventListener(events[i++], handler, false);
+  handler.init(event);
+  if (-1 < events.indexOf(method))
+    handler.handleEvent(event);
+}
+
+function getEvents(proto) {
+  var events = [];
+  while (proto !== root && proto) {
     var keys = getOwnPropertyNames(proto);
     var i = 0;
     var length = keys.length;
     while (i < length) {
       var key = keys[i++];
-      if (key.slice(0, 2) === 'on') {
-        el.addEventListener(key.slice(2), handler, false);
-        if (key === method && !invoke)
-          invoke = !invoke;
-      }
+      if (key.slice(0, 2) === 'on')
+        events.push(key.slice(2));
     }
     proto = getPrototypeOf(proto);
   }
-  handler.init(event);
-  if (invoke)
-    handler.handleEvent(event);
+  return events;
 }
 
 function handleEvent(event) {
