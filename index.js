@@ -397,6 +397,9 @@ var wickedElements = (function (Object) {
   var ONDISCONNECTED = 'ondisconnected';
   var ONATTRIBUTECHANGED = 'onattributechanged';
 
+  // craete RegExp
+  var RE = /^([a-z0-9-]+)?(#[a-z0-9-]+)?((?:\.[a-z0-9-]+)+)?(\[.+\])?$/;
+
   // one off scoped shortcut
   var create = Object.create;
   var defineProperty = Object.defineProperty;
@@ -411,6 +414,11 @@ var wickedElements = (function (Object) {
   //       so that a component prototype won't be
   //       exposed directly through the API.
   var wickedElements = create(regularElements, {
+    create: {
+      value: function (selector) {
+        return selector2element.apply(null, RE.exec(selector));
+      }
+    },
     define: {
       value: function (selector, component) {
         var ws = new WeakSet$1;
@@ -505,6 +513,31 @@ var wickedElements = (function (Object) {
     else
       style.textContent = cssText;
     (document.head || document.querySelector('head')).appendChild(style);
+  }
+
+  function selector2element(_, tag, id, classes, attributes) {
+    var el = document.createElement(tag || 'div');
+    if (id)
+      el.id = id.slice(1);
+    if (classes)
+      el.className = classes.replace(/\./g, ' ').slice(1);
+    if (attributes) {
+      var re = /\[(.+?)\]/g;
+      var match;
+      while (match = re.exec(attributes)) {
+        var all = match[1];
+        var i = all.indexOf('=');
+        var key = i < 0 ? all : all.slice(0, i);
+        var value = i < 0 ? true : all.slice(i + 1).replace(/^('|")?(.+)\1$/, '$2');
+        if (key === 'class')
+          key = 'className';
+        if (key in el)
+          el[key] = value;
+        else
+          el.setAttribute(key, i < 0 ? '' : value);
+      }
+    }
+    return el;
   }
 
   

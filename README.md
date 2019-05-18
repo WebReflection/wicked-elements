@@ -23,9 +23,9 @@ Bringing the [regularElements](https://github.com/WebReflection/regular-elements
   * as ESM module, via `import wickedElements from 'wicked-elements'`
   * as CJS module, via `const wickedElements = require('wicked-elements');`
 
-### API
+## API
 
-Same `regularElements` API, meaning same `customElements` API.
+Same `regularElements` API, meaning same `customElements` API, plus `create(selector)` to simplify elements creation.
 
 ```js
 // either via classes (ES2015+)
@@ -132,3 +132,14 @@ wickedElements.define('...', class {
 ```
 
 Bear in mind, if the array is empty all attributes changes will be notified.
+
+
+### wickedElements.create(selector)
+
+Fully based on CSS, this little helper can simplify elements creation quite a lot.
+
+```js
+const {create} = wickedElements;
+create('a#test.what.ever[href="http://cool.com"][data-wow=sure]');
+// <a id="test" class="what ever" href="http://cool.com" data-wow="sure"></a>
+```
