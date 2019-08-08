@@ -41,6 +41,14 @@
     "define",
     "behavior"
   ],
+  "greenkeeper": {
+    "ignore": [
+      "uglify-js",
+      "rollup",
+      "rollup-plugin-babel",
+      "rollup-plugin-node-resolve"
+    ]
+  },
   "bugs": {
     "url": "https://github.com/WebReflection/wicked-elements/issues"
   },
