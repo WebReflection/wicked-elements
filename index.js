@@ -122,9 +122,7 @@ var wickedElements = (function (Object) {
   }
 
   /*! (c) Andrea Giammarchi */
-  function disconnected(poly) {  var CONNECTED = 'connected';
-    var DISCONNECTED = 'dis' + CONNECTED;
-    var Event = poly.Event;
+  function disconnected(poly) {  var Event = poly.Event;
     var WeakSet = poly.WeakSet;
     var notObserving = true;
     var observer = null;
@@ -138,9 +136,8 @@ var wickedElements = (function (Object) {
       return node;
     };
     function startObserving(document) {
-      var dispatched = {};
-      dispatched[CONNECTED] = new WeakSet;
-      dispatched[DISCONNECTED] = new WeakSet;
+      var connected = new WeakSet;
+      var disconnected = new WeakSet;
       try {
         (new MutationObserver(changes)).observe(
           document,
@@ -182,24 +179,24 @@ var wickedElements = (function (Object) {
           i = 0; i < length; i++
         ) {
           record = records[i];
-          dispatchAll(record.removedNodes, DISCONNECTED, CONNECTED);
-          dispatchAll(record.addedNodes, CONNECTED, DISCONNECTED);
+          dispatchAll(record.removedNodes, 'disconnected', disconnected, connected);
+          dispatchAll(record.addedNodes, 'connected', connected, disconnected);
         }
       }
-      function dispatchAll(nodes, type, counter) {
+      function dispatchAll(nodes, type, wsin, wsout) {
         for (var
           node,
           event = new Event(type),
           length = nodes.length,
           i = 0; i < length;
           (node = nodes[i++]).nodeType === 1 &&
-          dispatchTarget(node, event, type, counter)
+          dispatchTarget(node, event, type, wsin, wsout)
         );
       }
-      function dispatchTarget(node, event, type, counter) {
-        if (observer.has(node) && !dispatched[type].has(node)) {
-          dispatched[counter].delete(node);
-          dispatched[type].add(node);
+      function dispatchTarget(node, event, type, wsin, wsout) {
+        if (observer.has(node) && !wsin.has(node)) {
+          wsout.delete(node);
+          wsin.add(node);
           node.dispatchEvent(event);
           /*
           // The event is not bubbling (perf reason: should it?),
@@ -221,7 +218,7 @@ var wickedElements = (function (Object) {
           children = node.children || [],
           length = children.length,
           i = 0; i < length;
-          dispatchTarget(children[i++], event, type, counter)
+          dispatchTarget(children[i++], event, type, wsin, wsout)
         );
       }
     }
