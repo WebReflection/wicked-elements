@@ -1,10 +1,10 @@
 interface IWickedElementsComponent<A extends Array<string>> {
   /**
-   * Always triggered once a node is live (even with classes).
+   * Always triggered once a node is live.
    * Right before `onconnected` and only once,
    * ideal to setup anything as a one off operation.
    */
-  init(e: Event): void;
+  init?(e: Event): void;
   /**
    * Triggered once live.
    * If defined later on and already live it will trigger once (setup here).
