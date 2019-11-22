@@ -19,15 +19,15 @@
   "license": "ISC",
   "devDependencies": {
     "@ungap/degap": "^0.1.4",
-    "ascjs": "^3.0.1",
-    "rollup": "^1.23.1",
+    "ascjs": "^3.1.0",
+    "rollup": "^1.27.4",
     "rollup-plugin-includepaths": "^0.2.3",
     "rollup-plugin-node-resolve": "^5.2.0",
-    "uglify-js": "^3.6.1"
+    "uglify-js": "^3.6.9"
   },
   "dependencies": {
     "@ungap/weakset": "^0.1.5",
-    "regular-elements": "^0.5.0"
+    "regular-elements": "^0.5.1"
   },
   "repository": {
     "type": "git",
