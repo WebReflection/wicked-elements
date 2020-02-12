@@ -71,7 +71,4 @@ declare const wickedElements: {
   whenDefined(selector: string): Promise<void>;
 };
 
-export const define = wickedElements.define;
-export const get = wickedElements.get;
-export const upgrade = wickedElements.upgrade;
-export const whenDefined = wickedElements.whenDefined;
+export = wickedElements;
