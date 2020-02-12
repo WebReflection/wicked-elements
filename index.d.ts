@@ -22,8 +22,8 @@ interface IWickedElementsComponent {
    */
   attributeChanged?(
     attributeName: string,
-    oldValue: string | null,
     newValue: string | null,
+    oldValue: string | null
   ): void;
 
   /**
@@ -48,7 +48,19 @@ interface IWickedElementsComponent {
 
 declare const wickedElements: {
   /**
-   * Defines a wicked element.
+   * Defines a wicked element via a selector and a literal,
+   * with various optional helpers:
+   * 
+   * @example
+   * define(CSSSelector, {
+   *   init() { this.element; },
+   *   connected() {},
+   *   disconnected() {},
+   *   attributeChanged(name, newValue, oldValue) {},
+   *   observedAttributes: [],
+   *   onEventName(event) {},
+   *   onEventNameOptions: {}
+   * });
    */
   define(
     selector: string,
