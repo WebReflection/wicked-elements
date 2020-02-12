@@ -40,12 +40,12 @@
   wickedElements.define('form.is-login-form', {
 
     // events
-    onkeyup: function () {
+    onKeyUP: function (event) {
       this.validate();
     },
-    onsubmit: function (event) {
+    onSubmit: function (event) {
       this.validate();
-      if (this.el.classList.contains('invalid')) {
+      if (this.element.classList.contains('invalid')) {
         event.preventDefault();
         event.stopPropagation();
       }
@@ -53,7 +53,7 @@
 
     // methods
     validate: function () {
-      this.el.classList.toggle(
+      this.element.classList.toggle(
         'invalid',
         !(this.user.length && this.password.length)
       );
@@ -61,10 +61,10 @@
 
     // accessors
     get user() {
-      return this.el.querySelector('input[name="user"]').value.trim();
+      return this.element.user.value.trim();
     },
     get password() {
-      return this.el.querySelector('input[type="password"]').value.trim();
+      return this.element.querySelector('input[type="password"]').value.trim();
     }
 
   });

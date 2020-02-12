@@ -1,137 +1,202 @@
 'use strict';
-/**
- * ISC License
- *
- * Copyright (c) 2018, Andrea Giammarchi, @WebReflection
- *
- * Permission to use, copy, modify, and/or distribute this software for any
- * purpose with or without fee is hereby granted, provided that the above
- * copyright notice and this permission notice appear in all copies.
- *
- * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
- * REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
- * AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
- * INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
- * LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE
- * OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
- * PERFORMANCE OF THIS SOFTWARE.
- */
+const matches = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('@ungap/element-matches'));
+const contains = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('@ungap/node-contains'));
 
-const WeakSet = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('@ungap/weakset'));
-const regularElements = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('regular-elements'));
+const {LIE} = require('./lie.js');
 
-// minifier friendly constants
-var ONDISCONNECTED = 'ondisconnected';
-var ONATTRIBUTECHANGED = 'onattributechanged';
+const {create, freeze, keys} = Object;
+const wickedElements = new WeakMap;
+const defined = new Map;
 
-// one off scoped shortcut
-var create = Object.create;
-var defineProperty = Object.defineProperty;
-var getOwnPropertyNames = Object.getOwnPropertyNames;
-var getPrototypeOf = Object.getPrototypeOf;
-var hasOwnProperty = Object.hasOwnProperty;
-var root = Object.prototype;
+const uid = '_' + Math.random();
+const connected = 'connected';
+const disconnected = 'dis' + connected;
 
-// NOTE: the component is not returned,
-//       only its initial definition.
-//       This works well in terms of security
-//       so that a component prototype won't be
-//       exposed directly through the API.
-var wickedElements = create(regularElements, {
-  define: {
-    value: function (selector, component) {
-      var ws = new WeakSet;
-      var definition = {onconnected: setup};
-      var isClass = typeof component === 'function';
-      var proto = isClass ? component.prototype : component;
-      var events = getEvents(proto);
-      if (ONDISCONNECTED in proto)
-        definition[ONDISCONNECTED] = setup;
-      if (ONATTRIBUTECHANGED in proto) {
-        definition[ONATTRIBUTECHANGED] = setup;
-        definition.attributeFilter =
-          (isClass ?
-            component.observedAttributes :
-            proto.observedAttributes) ||
-          proto.attributeFilter || [];
-      }
-      addIfNeeded(proto, 'init', init);
-      addIfNeeded(proto, 'handleEvent', handleEvent);
-      regularElements.define(selector, definition);
-      if (hasOwnProperty.call(component, 'style'))
-        injectStyle(component.style);
-      function setup(event) {
-        var el = event.currentTarget;
-        var type = event.type;
-        el.removeEventListener(type, setup, false);
-        if (!ws.has(el)) {
-          ws.add(el);
-          bootstrap(
-            isClass ? new component : create(proto),
-            events, event, el, type
-          );
-        }
-      }
-    }
-  }
+const selectors = [];
+const components = [];
+
+const empty = [];
+const {forEach} = empty;
+
+const $ = element => wickedElements.get(element) || empty;
+
+const attrObserver = new MutationObserver(mutations => {
+  for (let i = 0, {length} = mutations; i < length; i++)
+    $(mutations[i].target).forEach(onAttributeChanged, mutations[i]);
 });
 
-Object.defineProperty(exports, '__esModule', {value: true}).default = wickedElements;
-
-function addIfNeeded(component, key, value) {
-  if (!(key in component))
-    defineProperty(component, key, {value: value});
-}
-
-function bootstrap(handler, events, event, el, method) {
-  var init = false;
-  var i = 0;
-  var length = events.length;
-  while (i < length) {
-    var evt = events[i++];
-    el.addEventListener(evt.type, handler, evt.options);
-    init = (init || evt.type === method);
-  }
-  handler.init(event);
-  if (init)
-    handler.handleEvent(event);
-}
-
-function getEvents(proto) {
-  var events = [];
-  while (proto && proto !== root) {
-    var keys = getOwnPropertyNames(proto);
-    var i = 0;
-    var length = keys.length;
-    while (i < length) {
-      var key = keys[i++];
-      if (key.slice(0, 2) === 'on' && key.slice(-7) !== 'Options')
-        events.push({
-          type: key.slice(2),
-          options: proto[key + 'Options'] || false
-        });
+new MutationObserver(mutations => {
+  if (selectors.length) {
+    for (let i = 0, {length} = mutations; i < length; i++) {
+      const {addedNodes, removedNodes} = mutations[i];
+      forEach.call(addedNodes, onConnect);
+      forEach.call(removedNodes, onDisconnect);
     }
-    proto = getPrototypeOf(proto);
   }
-  return events;
+}).observe(document, {childList: true, subtree: true});
+
+const onConnect = element => {
+  if (element.querySelectorAll) {
+    upgradeDance(element, false);
+    connectOrDisconnect.call(connected, element);
+    forEach.call(
+      element.querySelectorAll(selectors),
+      connectOrDisconnect,
+      connected
+    );
+  }
+};
+
+const onDisconnect = element => {
+  if (element.querySelectorAll) {
+    connectOrDisconnect.call(disconnected, element);
+    forEach.call(
+      element.querySelectorAll(selectors),
+      connectOrDisconnect,
+      disconnected
+    );
+  }
+};
+
+const upgradeChildren = child => {
+  selectors.forEach(match, child);
+};
+
+const upgradeDance = (element, dispatchConnected) => {
+  if (element.querySelectorAll) {
+    selectors.forEach(match, element);
+    const children = element.querySelectorAll(selectors);
+    forEach.call(children, upgradeChildren);
+    if (dispatchConnected && contains.call(element.ownerDocument, element)) {
+      connectOrDisconnect.call(connected, element);
+      forEach.call(children, connectOrDisconnect, connected);
+    }
+  }
+};
+
+const waitDefined = selector => {
+  let resolve;
+  const entry = {
+    promise: new LIE($ => (resolve = $)),
+    resolve
+  };
+  defined.set(selector, entry);
+  return entry;
+};
+
+const define = (selector, definition) => {
+  if (get(selector))
+    throw new Error('duplicated ' + selector);
+  const listeners = [];
+  const retype = create(null);
+  for (let k = keys(definition), i = 0, {length} = k; i < length; i++) {
+    let listener = k[i];
+    if (/^on/.test(listener)) {
+      const options = definition[listener + 'Options'] || false;
+      const lower = listener.toLowerCase();
+      let type = lower.slice(2);
+      listeners.push({type, options});
+      retype[type] = listener;
+      if (lower !== listener) {
+        type = listener.slice(2, 3).toLowerCase() + listener.slice(3);
+        retype[type] = listener;
+        listeners.push({type, options});
+      }
+    }
+  }
+  if (listeners.length) {
+    definition.handleEvent = function (event) {
+      this[retype[event.type]](event);
+    };
+  }
+  if (definition.attributeChanged) {
+    const observerDetails = {attributes: true, attributeOldValue: true};
+    const {observedAttributes} = definition;
+    if ((observedAttributes || empty).length)
+      observerDetails.attributeFilter = observedAttributes;
+    definition.observerDetails = observerDetails;
+  }
+  selectors.push(selector);
+  components.push({
+    listeners,
+    definition: freeze(definition),
+    wm: new WeakMap
+  });
+  upgrade(document.documentElement);
+  (defined.get(selector) || waitDefined(selector)).resolve();
+};
+exports.define = define;
+
+const get = selector => {
+  const i = selectors.indexOf(selector);
+  return i < 0 ? void 0 : components[i].definition;
+};
+exports.get = get;
+
+const upgrade = element => {
+  if (selectors.length)
+    upgradeDance(element, true);
+};
+exports.upgrade = upgrade;
+
+const whenDefined = selector => (
+  defined.get(selector) ||
+  waitDefined(selector)
+).promise;
+exports.whenDefined = whenDefined;
+
+function connectOrDisconnect(element) {
+  $(element).forEach(onConnectedOrDisconnected, this);
 }
 
-function handleEvent(event) {
-  var type = 'on' + event.type;
-  if (type in this)
-    this[type](event);
+function init(handler, listeners, wm) {
+  for (let i = 0, {length} = listeners; i < length; i++) {
+    const {type, options} = listeners[i];
+    this.addEventListener(type, handler, options);
+  }
+  const {observerDetails} = handler;
+  if (observerDetails)
+    attrObserver.observe(this, observerDetails);
+  wm.set(this, true);
+  wickedElements.set(this, $(this).concat(handler));
+  if (handler.init)
+    handler.init();
 }
 
-function init(event) {
-  this.el = event.currentTarget;
+function match(selector, i) {
+  if (matches.call(this, selector)) {
+    const {definition, listeners, wm} = components[i];
+    if (!wm.has(this))
+      init.call(
+        this,
+        create(definition, {
+          element: {enumerable: true, value: this},
+          [uid]: {writable: true, value: ''}
+        }),
+        listeners,
+        wm
+      );
+  }
 }
 
-function injectStyle(cssText) {
-  var style = document.createElement('style');
-  style.type = 'text/css';
-  if (style.styleSheet)
-    style.styleSheet.cssText = cssText;
-  else
-    style.textContent = cssText;
-  (document.head || document.querySelector('head')).appendChild(style);
+function onAttributeChanged(handler) {
+  const {observerDetails} = handler;
+  if (observerDetails) {
+    const {attributeName, oldValue, target} = this;
+    const {attributeFilter} = observerDetails;
+    if (!attributeFilter || -1 < attributeFilter.indexOf(attributeName))
+      handler.attributeChanged(
+        attributeName,
+        target.getAttribute(attributeName),
+        oldValue
+      );
+  }
+}
+
+function onConnectedOrDisconnected(handler) {
+  const method = handler[this];
+  if (method && handler[uid] != this) {
+    handler[uid] = this;
+    method.call(handler);
+  }
 }

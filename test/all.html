@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wicked Elements</title>
+  <script src="../index.js"></script>
+  <script>
+  wickedElements.whenDefined('.test').then(function () {
+    console.log('.test defined as', wickedElements.get('.test'));
+  });
+  this.onload = function () {
+    var div = document.createElement('div');
+    div.className = 'test';
+    document.body.appendChild(div);
+    setTimeout(function () {
+      div.dataset.test = 123;
+      document.body.removeChild(div);
+      setTimeout(function () {
+        document.body.appendChild(div);
+        document.body.removeChild(div);
+        setTimeout(function () {
+          div = document.createElement('div');
+          document.body.appendChild(div);
+          setTimeout(function () {
+            div.className = 'test';
+            wickedElements.upgrade(div);
+            div.dataset.test = 456;
+            setTimeout(function () {
+              div.dataset.test = 789;
+              div.click();
+              document.body.removeChild(div);
+            }, 50);
+          }, 250);
+        }, 250);
+      }, 250);
+    }, 250);
+    wickedElements.define('.test', {
+      init: function () {
+        console.log('init', this.element);
+      },
+      connected: function () {
+        console.log('connected');
+      },
+      disconnected: function () {
+        console.log('disconnected');
+      },
+      attributeChanged: function (name, value, old) {
+        console.log(name, value, old);
+      },
+      observedAttributes: ['data-test'],
+      onClick: function (event) {
+        console.log(event.type);
+      },
+      onCustomEvent: function (event) {
+        console.log(event.type);
+      }
+    });
+  };
+  </script>
+</head>
+</html>
