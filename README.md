@@ -86,7 +86,7 @@ wickedElements.define(
 
 ## Examples
 
-Following some basic component example to better understand few use cases.
+Beside checking a [basic counter](https://codepen.io/WebReflection/pen/JjdYyxj) as playground, you can read some other basic component example to better understand some use case.
 
 
 ### A Component that can disable itself
