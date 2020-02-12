@@ -43,5 +43,9 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/WebReflection/wicked-elements.git"
-  }
+  },
+  "bugs": {
+    "url": "https://github.com/WebReflection/wicked-elements/issues"
+  },
+  "homepage": "https://github.com/WebReflection/wicked-elements#readme"
 }

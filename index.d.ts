@@ -70,4 +70,5 @@ declare const wickedElements: {
    */
   whenDefined(selector: string): Promise<void>;
 };
+
 export default wickedElements;
