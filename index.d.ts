@@ -1,55 +1,73 @@
-interface IWickedElementsComponent<A extends Array<string>> {
+interface IWickedElementsComponent {
   /**
-   * Always triggered once a node is live.
-   * Right before `onconnected` and only once,
-   * ideal to setup anything as a one off operation.
+   * Always triggered once per node => definition, like a `constructor`.
+   * Ideal to setup anything as a one off operation.
+   * `this.element` will point at the node handled by this instance.
    */
-  init?(e: Event): void;
+  init?(): void;
+
   /**
-   * Triggered once live.
-   * If defined later on and already live it will trigger once (setup here).
+   * Triggered once the node is live.
    */
-  onconnected?(e: Event): void;
+  connected?(): void;
+
   /**
-   * Triggered once lost/removed.
+   * Triggered once the node is lost/removed.
    */
-  ondisconnected?(e: Event): void;
+  disconnected?(): void;
+
   /**
-   * Triggered when an attribute in the `attributeFilter` property changes,
-   * or, if said property is not defined or is an empty array, any time an
-   * attribute changes. 
+   * Triggered when an attribute in the `observedAttributes` list changes or,
+   * if `observedAttributes` is not defined, for any attribute changes. 
    */
-  onattributechanged?(e: {
-    attributeName: A[number];
-    oldValue: string | null;
-    newValue: string | null;
-  }): void;
+  attributeChanged?(
+    attributeName: string,
+    oldValue: string | null,
+    newValue: string | null,
+  ): void;
+
   /**
-   * optionally you can specify attributes to observe
-   * by default, or with an empty list, all attributes are notified
+   * Optionally you can specify one or more attribute to observe.
+   * If empty, or not provided, but `attributeChanged()` method exists,
+   * all attributes changes are notified.
    */
-  attributeFilter?: A;
+  observedAttributes?: Array<string>;
+
   /**
-   * If styling is supplied, it'll be injected only once per component.
-   * Inherited styles won't get injected.
+   * Any event can be defined as method.
+   * Example: `onClick` or `onCustomEvent`.
    */
-  style?: string;
-  [k: string]: any;
+  onEventName?(event:Event): void;
+
+  /**
+   * Ane event could optionally have `Options` used as third argument,
+   * when the event is added via `addEventListener`: `false` by default.
+   */
+  onEventNameOptions?:boolean | object;
 }
 
 declare const wickedElements: {
   /**
-   * defines a wicked element.
+   * Defines a wicked element.
    */
-  define<A extends Array<string>>(
-    /**
-     * targeted CSS selector.
-     */
+  define(
     selector: string,
-    /**
-     * wicked element component definition.
-     */
-    component: IWickedElementsComponent<A>
+    component: IWickedElementsComponent
   ): void;
+
+  /**
+   * Retrieves a wicked element definition.
+   */
+  get(selector: string): void | IWickedElementsComponent;
+
+  /**
+   * Force/upgrade a specific node, if it matches any defined selector.
+   */
+  upgrade(element:Element): void;
+
+  /**
+   * Resolves once a specific selector gets defined.
+   */
+  whenDefined(selector: string): Promise<void>;
 };
 export default wickedElements;

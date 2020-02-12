@@ -2,133 +2,159 @@
 
 <sup>**Social Media Photo by [Jonatan Pie](https://unsplash.com/@r3dmax) on [Unsplash](https://unsplash.com/)**</sup>
 
-[![Build Status](https://travis-ci.com/WebReflection/wicked-elements.svg?branch=master)](https://travis-ci.com/WebReflection/wicked-elements) [![Greenkeeper badge](https://badges.greenkeeper.io/WebReflection/wicked-elements.svg)](https://greenkeeper.io/) ![WebReflection status](https://offline.report/status/webreflection.svg)
+An _all inclusive_ ~1.3K library to handle any element as if it was a Custom Element.
 
-Bringing the [regularElements](https://github.com/WebReflection/regular-elements) goodness to a component based world.
 
-  * no fancy polyfills needed for IE11+, it [optionally](https://github.com/WebReflection/regular-elements/#compatibility) works [even in IE9](https://webreflection.github.io/wicked-elements/test/)
-  * lightweight as in [~2K lightweight](https://unpkg.com/wicked-elements), with also a [1.7K brotli version](https://unpkg.com/wicked-elements/new.js), for modern browsers only, that drops all unnecessary polyfills for `WeakSet`, `CustomEvent`, `element.matches(...)` or `Object.assign` 🎉
-  * CPU & RAM friendly <sup><sub>(100% based on [handleEvent](https://medium.com/@WebReflection/dom-handleevent-a-cross-platform-standard-since-year-2000-5bf17287fd38) through prototypal inheritance)</sub></sup>
-  * components can exist at any time <sup><sub>(past, present, future)</sub></sup>
-  * no issues with classes, it works well with composed behaviors
-  * you can use classes if you like anyway, just pass one instead of a literal!
-  * you can use wicked elements as an alternative custom elements polyfill in combination with own element names (e.g. `my-wicked-element`)
-  * you can define multiple behaviors, per same DOM element, through the power of CSS selectors
-  * lazy load any component at any time: all their states are uniquely private per selector and per node
-  * either `attributeFilter` or `observedAttributes` can be used to observe specific attributes
+## V1 Breaking/Changes
 
-### How to
+  * **half of the size**, _wickedElements_ is now less than 1.5K, more like 1.1K in its ES2015 compatible environments version (see [new.js](./new.js) file)
+  * _wickedElements_ requires **zero polyfills** whatsoever: everything is provided, and granted to work, out of the box
+  * _wickedElements_ has been tested, and works as is in **IE11 and** in **every** other **Desktop or Mobile browser** compatible with `WeakMap` and `MutationObserver`.
+  * the v0 `style` feature has been **removed**, as coupling styles within JS, same way you'd do by including a CSS file, didn't really add much value
+  * **dropped classes** as definition, just pass an object literal
+  * `this.element` automatically provided and already available in the `init`
+  * direct `connected`, `disconnected`, and `attributeChanged` invokes (no more event driven)
 
-  * as CDN global object, via `<script src="https://unpkg.com/wicked-elements"></script>`
-  * as ESM module, via `import wickedElements from 'wicked-elements'`
-  * as CJS module, via `const wickedElements = require('wicked-elements');`
 
-### API
+## API
 
-Same `regularElements` API, meaning same `customElements` API.
+Exact same [customElements API](https://html.spec.whatwg.org/multipage/custom-elements.html#dom-window-customelements), with the following differences:
+
+  * `wickedElements.get(CSS)` returns the _frozen_ component definition, which should be an object literal, or a combination of definitions (i.e. `Object.assign({}, BaseDefinition, OverwritesDefinition)`)
+  * `wickedElements.define(CSS, definition)` accepts any _CSS_ selector, where the more specific it is, the better.
+  
+The `definition` is a literal object with optional helpers/utilities described as such:
 
 ```js
-// either via classes (ES2015+)
-// wickedElements.define('.is-wicked-element', class { ... });
-// or literals (ES5+)
-wickedElements.define('.is-wicked-element', {
+wickedElements.define(
+  // a unique, specific, CSS selector that will become wicked
+  '[data-wicked="my-component"]',
+  {
+    // a one-off, `constructor` like, initialization,
+    // the right place to populate node content, add listeners, or setup components
+    init() {
+      // the element that is related to this wicked instance will be always
+      // reachable through `this.element`, even without an `init()` method
+      this.element;
+      // always points, in every other method, to the DOM element related
+      // to this wicked element/component
+    },
 
-  // always triggered once a node is live (even with classes)
-  // always right before onconnected and only once,
-  // ideal to setup anything as one off operation
-  init: function (event) {
-    // the context is actually a private object
-    // that inherits the component definition
-    // literally: Object.create(component)
-    this.el = event.currentTarget;
-    // accordingly, you can attach any property
-    // and even if public, these won't ever leak
-    // (unless you decide to leak the component)
-    this._rando = Math.random();
-    // you can invoke directly any method
-    this.render();
+    // Custom Elements like callbacks, without the redundant `Callback` suffix
+    connected() {},
+    disconnected() {},
+    attributeChanged(name, value, oldValue) {},
+
+    // as optional property used only if `attributeChanged` is defined,
+    // it will eventually confine `attributeChanged(...)` calls
+    // by monitoring only a well known set of attributes
+    observedAttributes: ['data-thing', 'value'],
+    // if omitted, or empty array, will notify all attributes changes
+
+    // zero, one, or more, listeners, automatically setup per each component
+    // the context of each method-listener will be the wicked instance,
+    // not the element itself, but you can reach event.currentTarget or this.element
+    // at any time within the code
+    onClick(event) {},
+    onCustomEvent(event) {}
+    // if defined camelCase, events will be attached both lowercase
+    // and also camelCase, so that element.dispatch(new CustomEvent('customEvent'))
+    // or element.dispatch(new CustomEvent('customevent')) will both work.
+    // the `event.type` will be the one dispatched, i.e. `click` or `customEvent`
+    // or even `customevent`.
+
+    // any property with an `Options` suffix, will be used to add the listener,
+    // so that special cases like `{once: true}`, `true` to capture, and others,
+    // can be easily addressed through the definition. By default, options is `false`.
+    onClickOptions: {once: true}
+  }
+);
+```
+
+
+## Examples
+
+Following some basic component example to better understand few use cases.
+
+
+### A Component that can disable itself
+
+Any element with a `disabled` class will effectively become disabled.
+
+```js
+wickedElements.define('.disabled', {
+  init() {
+    const {element} = this;
+
+    // if the element has its native way to be disabled, return
+    if ('disabled' in element)
+      return;
+
+    // otherwise define the behavior
+    Object.defineProperty(element, 'disabled', {
+      get: () => element.hasAttribute('disabled'),
+      set: value => {
+        if (value) {
+          element.style.cssText = this.disabled;
+          element.setAttribute('disabled', '');
+        }
+        else {
+          element.style.cssText = '';
+          element.removeAttribute('disabled');
+        }
+      }
+    });
+
+    // if the element was live, just trigger/ensure its status
+    element.disabled = element.disabled;
   },
+  // the style to attach to disabled elements
+  disabled: `
+    pointer-events: none;
+    opacity: 0.5;
+  `
+});
+```
 
-  // regularElements hooks available
-  onconnected(event) {},
-  ondisconnected(event) {},
-  onattributechanged(event) {},
 
-  // and any other event too
-  // just prefix a method with `on` and it will
-  // be automatically setup for listening
-  onclick(event) {},
+### An extra component based on disabled state
 
-  // define optional options for specific events
-  // any `on${event.type}Options` would work
-  onclickOptions: {once: true},
+This example is simply to demonstrate that once a definition is known, even same DOM nodes can be handled by multiple definitions.
 
-  // if there is a style, it'll be injected only once per component
-  // inherited styles won't get injected, and classes needs
-  // a static get style() { return '...'; } if this behavior is needed
-  style: `
-    .is-wicked-element {
-      border: 2px solid silver;
+As example, here we are addressing all elements that will eventually have a `[disabled]` attribute.
+
+```js
+wickedElements.define('[disabled]', {
+  onMouseOver() {
+    const {element} = this;
+    // as elements can be promoted but never come back,
+    // which is the same that happens to Custom Elements definitions,
+    // we can check these elements are still disabled, per each mouseover event
+    if (element.disabled) {
+      element.style.visibility = 'hidden';
     }
-  `,
-
-  // works well with any 3rd parts library
-  // WARNING: THIS IS JUST AS EXAMPLE,
-  //          YOU DON'T NEED hyperHTML
-  //          TO USE THIS LIBRARY!
-  //          THE NODE CAN BE ANY NODE
-  //          AND ALREADY POPULATED WITH CONTENT
-  render() {
-    this.html`<p>I am rando ${this._rando}</p>`;
   },
-
-  // any object literal syntax available out of the box
-  // it's 100% based on prototypal inheritance
-  get html() {
-    return hyperHTML.bind(this.el);
+  onMouseOut() {
+    this.element.style.visibility = 'visible';
   }
 });
-
-// you can also attach the wicked element behaviour to
-// custom element names without needing customElements
-wickedElements.define('wicked-element', {
-  // ...
-});
-
-// or even ...
-wickedElements.define('[is="wicked-element"]', {
-  // ...
-});
-
 ```
 
-### Attributes
+Each definition will provide a new instance of such definition (definition as prototype), meaning there are no conflicts between definitions, and each wicked instance deals with what its prototype object had at the time of definition.
 
-These are examples to listen to specific attributes:
+
+### A portable component
+
+Same as Custom Elements suffer name-clashing, so that you can have only one `custom-element` definition per page, wicked definitions also could clash if the name is too generic.
+
+It is a good practice to ensure, somehow, your definitions are namespaced, or unique enough, if you're after portability.
 
 ```js
-// with JS literals
-wickedElements.define('...', {
-  // ...
-  observedAttributes: ['only', 'these'],
-  // **OR**
-  attributeFilter: ['only', 'these']
-  // ...
+wickedElements.define('[data-wicked="my-proj-name-table"]', {
+  // unique(ish) definition what will likely not clash with others
 });
-
-// with ES classes
-wickedElements.define('...', class {
-  // ...
-  static get observedAttributes() {
-    return ['only', 'these'];
-  }
-  // **OR**
-  get attributeFilter() {
-    return ['only', 'these'];
-  }
-  // ...
-});
-
 ```
 
-Bear in mind, if the array is empty all attributes changes will be notified.
+Using `data-wicked="..."` is convenient to also be sure a single element would represent the definition and nothing else, as you cannot have multiple values within an `element.dataset.wicked`, or better, you can serve these components via Server Side Rendering and reflect their special powers via JS once their definition lands on the client, which can be at any given time.
+
+Using a runtime unique class/attribute name also grants behaviors and definitions won't clash, but portability of each wicked behavior could be compromised.

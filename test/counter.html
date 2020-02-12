@@ -9,7 +9,7 @@
   <script>
   wickedElements.define('div.is-counter', {
     onclick: function () {
-      var span = this.el.querySelector('span');
+      var span = this.element.querySelector('span');
       span.textContent = parseFloat(span.textContent) + 1;
     }
   });

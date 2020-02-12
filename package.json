@@ -6,51 +6,42 @@
   "module": "esm/index.js",
   "unpkg": "min.js",
   "scripts": {
-    "build": "ascjs esm cjs && npm run rollup && npm run new && npm run cleanup:min && npm run cleanup:new && npm run min && npm run size",
-    "new": "rollup --config es.config.js",
-    "min": "echo \"/*! (c) Andrea Giammarchi - ISC */$(uglifyjs index.js -c -m)\" > min.js && echo \"/*! (c) Andrea Giammarchi - ISC */$(uglifyjs modern.js -c -m)\" > new.js",
-    "rollup": "rollup --config rollup.config.js",
+    "build": "npm run cjs && npm run rollup:new && npm run rollup:babel && npm run min && npm run size && npm run test",
+    "cjs": "ascjs --no-default esm cjs",
+    "rollup:new": "rollup --config rollup/new.config.js",
+    "rollup:babel": "rollup --config rollup/babel.config.js",
+    "min": "uglifyjs index.js --support-ie8 --comments=/^!/ -c -m -o min.js",
     "size": "cat min.js | gzip -9 | wc -c && cat min.js | brotli | wc -c && cat new.js | gzip -9 | wc -c && cat new.js | brotli | wc -c",
-    "cleanup:min": "cat modern.js|sed 's/(exports)/(Object)/'|sed 's/return exports;/return wickedElements;/'|sed -e 's/exports.*;//g'|sed 's/({})/(Object)/'|sed 's/var wickedElements =/var wickedElements = wickedElements ||/'>modern.clean&&mv modern.clean modern.js",
-    "cleanup:new": "cat index.js|sed 's/(exports)/(Object)/'|sed 's/return exports;/return wickedElements;/'|sed -e 's/exports.*;//g'|sed 's/({})/(Object)/'>index.clean&&mv index.clean index.js",
-    "test": "echo 'use http-server and browse the test folder'"
+    "test": "echo \"$(tput smso)$(tput bold) Please check the test folder $(tput sgr0)\" && http-server ."
   },
   "author": "Andrea Giammarchi",
   "license": "ISC",
-  "devDependencies": {
-    "@ungap/degap": "^0.1.4",
-    "ascjs": "^3.1.0",
-    "rollup": "^1.27.4",
-    "rollup-plugin-includepaths": "^0.2.3",
-    "rollup-plugin-node-resolve": "^5.2.0",
-    "uglify-js": "^3.6.9"
-  },
-  "dependencies": {
-    "@ungap/weakset": "^0.1.5",
-    "regular-elements": "^0.5.1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/WebReflection/wicked-elements.git"
-  },
   "keywords": [
     "dom",
     "custom",
-    "regular",
     "elements",
     "define",
     "behavior"
   ],
-  "greenkeeper": {
-    "ignore": [
-      "uglify-js",
-      "rollup",
-      "rollup-plugin-babel",
-      "rollup-plugin-node-resolve"
-    ]
+  "dependencies": {
+    "@ungap/element-matches": "^0.1.0",
+    "@ungap/node-contains": "^0.1.0"
   },
-  "bugs": {
-    "url": "https://github.com/WebReflection/wicked-elements/issues"
+  "devDependencies": {
+    "@babel/core": "^7.8.4",
+    "@babel/preset-env": "^7.8.4",
+    "@ungap/degap": "^0.1.5",
+    "ascjs": "^3.1.2",
+    "http-server": "^0.12.1",
+    "rollup": "^1.31.0",
+    "rollup-plugin-babel": "^4.3.3",
+    "rollup-plugin-includepaths": "^0.2.3",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "rollup-plugin-terser": "^5.2.0",
+    "uglify-js": "^3.7.7"
   },
-  "homepage": "https://github.com/WebReflection/wicked-elements#readme"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/WebReflection/wicked-elements.git"
+  }
 }
