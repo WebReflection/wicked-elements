@@ -4,6 +4,18 @@
 
 An _all inclusive_ ~1.3K library to handle any element as if it was a Custom Element.
 
+```js
+import {define, get, upgrade, whenDefined} from 'wicked-elements';
+const {define, get, upgrade, whenDefined} = require('wicked-elements');
+```
+
+```html
+<script src="https://unpkg.com/wicked-elements">
+  // as global variable
+  wickedElements.{define, get, upgrade, whenDefined};
+</script>
+```
+
 
 ## V1 Breaking/Changes
 
