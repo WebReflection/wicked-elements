@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>wickedElements meets lighterhtml</title>
+  <script src="https://unpkg.com/lighterhtml"></script>
+  <script src="../min.js"></script>
+  <style>
+  body {
+    font-family: sans-serif;
+  }
+  body p {
+    user-select: none;
+    cursor: pointer;
+  }
+  </style>
+  <script>
+  const {render, html} = lighterhtml;
+
+  wickedElements.define('body', {
+    init() {
+      this.html = wickedHTML.bind(this.element);
+      this.clicks = 0;
+      this.render();
+    },
+    onClick(event) {
+      event.stopPropagation();
+      event.preventDefault();
+      this.clicks++;
+      this.render();
+    },
+    render() {
+      this.html`
+        <h3>Hello There</h3>
+        <p onclick=${this}>
+          This is a simple clickable test.
+        </p>
+        <p>
+          Clicks: ${this.clicks}
+        </p>
+      `;
+    }
+  });
+
+  function wickedHTML() {
+    return render(this, html.apply(null, arguments));
+  }
+  </script>
+</head>
+<body>
+  
+</body>
+</html>
