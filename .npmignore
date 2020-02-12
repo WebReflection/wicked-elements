@@ -1,9 +1,11 @@
 coverage/*
 node_modules/*
 test/*
+rollup/*
 _config.yml
 .DS_Store
 .gitignore
+.github
 .travis.yml
 package-lock.json
 rollup.config.js
