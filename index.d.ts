@@ -48,18 +48,17 @@ interface IWickedElementsComponent {
 
 declare const wickedElements: {
   /**
-   * Defines a wicked element via a selector and a literal,
-   * with various optional helpers:
+   * Defines a wicked element via a selector and a literal.
    * 
    * @example
-   * define(CSSSelector, {
+   * define(selector, {
    *   init() { this.element; },
    *   connected() {},
    *   disconnected() {},
    *   attributeChanged(name, newValue, oldValue) {},
    *   observedAttributes: [],
    *   onEventName(event) {},
-   *   onEventNameOptions: {}
+   *   onEventNameOptions: false
    * });
    */
   define(
