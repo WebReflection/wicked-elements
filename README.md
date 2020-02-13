@@ -90,7 +90,7 @@ wickedElements.define(
     <strong>Can I use 3rd parts libraries to render content?</strong>
   </summary>
   <div>
-  Sure thing! Following a [lighterhtml](https://github.com/WebReflection/lighterhtml#readme) integration example, also [live in CodePen](https://codepen.io/WebReflection/pen/qBdOzWj?editors=0010):
+  Sure thing! Following a <a href="https://github.com/WebReflection/lighterhtml#readme">lighterhtml</a> integration example, also <a href="https://codepen.io/WebReflection/pen/qBdOzWj?editors=0010">live in CodePen</a>:
 
 ```js
 import {render, html, svg} from 'lighterhtml';
@@ -115,10 +115,10 @@ define('.my-component', {
 
 <details>
   <summary>
-    <strong>Can I haz _hooks_ too?</strong>
+    <strong>Can I haz <em>hooks</em> too?</strong>
   </summary>
   <div>
-  Here you go: [augmentor](https://github.com/WebReflection/augmentor#readme) is just perfect for this use case 😉 and you can test it [live on CodePen](https://codepen.io/WebReflection/pen/poJjXPg?editors=0010).
+  Here you go: <a href="https://github.com/WebReflection/augmentor#readme">augmentor</a> is just perfect for this use case 😉 and you can test it <a href="https://codepen.io/WebReflection/pen/poJjXPg?editors=0010">live on CodePen</a>.
 
 ```js
 import {augmentor, useState} from 'augmentor';
@@ -140,16 +140,21 @@ define('button.counter', {
   </div>
 </details>
 
+<details>
+  <summary>
+    <strong>Any basic example to play with?</strong>
+  </summary>
+  <div>
+  This is a classic one, the <a href="https://webcomponents.dev/edit/kfZrGZ2SZwBu0opTJqL9">WebComponents.dev click counter</a>, also in <a href="https://codepen.io/WebReflection/pen/JjdYyxj">in CodePen</a>.
+  </div>
+</details>
 
-
-## Examples
-
-Beside checking a [basic counter](https://codepen.io/WebReflection/pen/JjdYyxj) as playground, you can read some other basic component example to better understand some use case.
-
-
-### A Component that can disable itself
-
-Any element with a `disabled` class will effectively become disabled.
+<details>
+  <summary>
+    <strong>Any other example?</strong>
+  </summary>
+  <div>
+Sure. Here any element with a `disabled` class will effectively become disabled.
 
 ```js
 wickedElements.define('.disabled', {
@@ -186,10 +191,7 @@ wickedElements.define('.disabled', {
 });
 ```
 
-
-### An extra component based on disabled state
-
-This example is simply to demonstrate that once a definition is known, even same DOM nodes can be handled by multiple definitions.
+Once a definition is known, even same DOM nodes can be handled by multiple definitions/behaviors.
 
 As example, here we are addressing all elements that will eventually have a `[disabled]` attribute.
 
@@ -210,11 +212,15 @@ wickedElements.define('[disabled]', {
 });
 ```
 
-Each definition will provide a new instance of such definition (definition as prototype), meaning there are no conflicts between definitions, and each wicked instance deals with what its prototype object had at the time of definition.
+Each definition/behavior will provide a new instance of such definition (definition as prototype), meaning there are no conflicts between definitions, and each wicked instance deals with what its prototype object had at the time of definition.
+  </div>
+</details>
 
-
-### A portable component
-
+<details>
+  <summary>
+    <strong>Any caveat/hint to consider?</strong>
+  </summary>
+  <div>
 Same as Custom Elements suffer name-clashing, so that you can have only one `custom-element` definition per page, wicked definitions also could clash if the name is too generic.
 
 It is a good practice to ensure, somehow, your definitions are namespaced, or unique enough, if you're after portability.
@@ -228,3 +234,6 @@ wickedElements.define('[data-wicked="my-proj-name-table"]', {
 Using `data-wicked="..."` is convenient to also be sure a single element would represent the definition and nothing else, as you cannot have multiple values within an `element.dataset.wicked`, or better, you can serve these components via Server Side Rendering and reflect their special powers via JS once their definition lands on the client, which can be at any given time.
 
 Using a runtime unique class/attribute name also grants behaviors and definitions won't clash, but portability of each wicked behavior could be compromised.
+
+  </div>
+</details>
