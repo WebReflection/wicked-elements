@@ -90,6 +90,7 @@ wickedElements.define(
     <strong>Can I use 3rd parts libraries to render content?</strong>
   </summary>
   <div>
+
   Sure thing! Following a <a href="https://github.com/WebReflection/lighterhtml#readme">lighterhtml</a> integration example, also <a href="https://codepen.io/WebReflection/pen/qBdOzWj?editors=0010">live in CodePen</a>:
 
 ```js
@@ -102,9 +103,7 @@ const LighterHTML = {
 import {define} from 'wicked-elements';
 define('.my-component', {
   ...LighterHTML,
-  init() {
-    this.render();
-  },
+  init() { this.render(); },
   render() {
     this.html`<h3>Hello 👋</h3>`;
   }
@@ -118,6 +117,7 @@ define('.my-component', {
     <strong>Can I haz <em>hooks</em> too?</strong>
   </summary>
   <div>
+
   Here you go: <a href="https://github.com/WebReflection/augmentor#readme">augmentor</a> is just perfect for this use case 😉 and you can test it <a href="https://codepen.io/WebReflection/pen/poJjXPg?editors=0010">live on CodePen</a>.
 
 ```js
@@ -137,6 +137,7 @@ define('button.counter', {
   }
 });
 ```
+
   </div>
 </details>
 
@@ -145,7 +146,9 @@ define('button.counter', {
     <strong>Any basic example to play with?</strong>
   </summary>
   <div>
+
   This is a classic one, the <a href="https://webcomponents.dev/edit/kfZrGZ2SZwBu0opTJqL9">WebComponents.dev click counter</a>, also in <a href="https://codepen.io/WebReflection/pen/JjdYyxj">in CodePen</a>.
+
   </div>
 </details>
 
@@ -154,6 +157,7 @@ define('button.counter', {
     <strong>Any other example?</strong>
   </summary>
   <div>
+
 Sure. Here any element with a `disabled` class will effectively become disabled.
 
 ```js
@@ -213,6 +217,7 @@ wickedElements.define('[disabled]', {
 ```
 
 Each definition/behavior will provide a new instance of such definition (definition as prototype), meaning there are no conflicts between definitions, and each wicked instance deals with what its prototype object had at the time of definition.
+
   </div>
 </details>
 
@@ -221,6 +226,7 @@ Each definition/behavior will provide a new instance of such definition (definit
     <strong>Any caveat/hint to consider?</strong>
   </summary>
   <div>
+
 Same as Custom Elements suffer name-clashing, so that you can have only one `custom-element` definition per page, wicked definitions also could clash if the name is too generic.
 
 It is a good practice to ensure, somehow, your definitions are namespaced, or unique enough, if you're after portability.
@@ -234,6 +240,47 @@ wickedElements.define('[data-wicked="my-proj-name-table"]', {
 Using `data-wicked="..."` is convenient to also be sure a single element would represent the definition and nothing else, as you cannot have multiple values within an `element.dataset.wicked`, or better, you can serve these components via Server Side Rendering and reflect their special powers via JS once their definition lands on the client, which can be at any given time.
 
 Using a runtime unique class/attribute name also grants behaviors and definitions won't clash, but portability of each wicked behavior could be compromised.
+
+  </div>
+</details>
+
+<details>
+  <summary>
+    <strong>My element doesn't become wicked, what should I do?</strong>
+  </summary>
+  <div>
+
+  There are cases where an element might not become <em>wicked</em>, such as when the element class changes at runtime, and after the definition occurs.
+
+```js
+wickedElements.define('.is-wicked', {
+  init() {
+    this.element.classList.remove('not-wicked-yet');
+    console.log(this.element, 'is now wicked 🎉');
+  }
+});
+
+const later = document.querySelector('.not-wicked-yet');
+later.classList.add('is-wicked');
+// ... nothing happens ...
+```
+
+For obvious performance reasons, the `MutationObserver` doesn't trigger per each possible class change in the DOM, but fear not, like it is for <a href="https://html.spec.whatwg.org/multipage/custom-elements.html#dom-customelementregistry-upgrade">customElements.upgrade(element)</a>, you can always upgrade one or more elements via `wickedElements.upgrade(element)`.
+
+```js
+wickedElements.upgrade(later);
+// console.log ...
+// <div class="is-wicked"></div> is now wicked 🎉
+```
+
+If you'd like to upgrade many elements at once, you can always pass their top-most container, and let the library do the rest.
+
+```js
+// upgrade all wicked definitions at once 👍
+wickedElements.upgrade(document.documentElement);
+```
+
+Don't worry though, elements that were already wicked won't be affected by an upgrade, so that each `init()` is still granted to execute only once per fresh new element, and never again.
 
   </div>
 </details>
