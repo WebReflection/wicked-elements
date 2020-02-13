@@ -17,36 +17,38 @@
   }
   </style>
   <script>
-  const {render, html} = lighterhtml;
 
-  wickedElements.define('body', {
-    init() {
-      this.html = wickedHTML.bind(this.element);
-      this.clicks = 0;
-      this.render();
-    },
-    onClick(event) {
-      event.stopPropagation();
-      event.preventDefault();
-      this.clicks++;
-      this.render();
-    },
-    render() {
-      this.html`
-        <h3>Hello There</h3>
-        <p onclick=${this}>
-          This is a simple clickable test.
-        </p>
-        <p>
-          Clicks: ${this.clicks}
-        </p>
-      `;
-    }
-  });
+  const {render, html, svg} = lighterhtml;
 
-  function wickedHTML() {
-    return render(this, html.apply(null, arguments));
-  }
+  const LighterHTML = {
+    html() { return render(this.element, html.apply(null, arguments)); },
+    svg() { return render(this.element, svg.apply(null, arguments)); }
+  };
+
+  wickedElements.define('body', Object.assign(
+    {
+      init() {
+        this.clicks = 0;
+        this.render();
+      },
+      onClick(event) {
+        event.stopPropagation();
+        this.clicks++;
+        this.render();
+      },
+      render() {
+        this.html`
+          <h3>Hello There</h3>
+          <button onclick=${this}>
+            This is a simple clickable test.
+          </button>
+          <p>Clicks: ${this.clicks}</p>
+        `;
+      }
+    },
+    LighterHTML
+  ));
+
   </script>
 </head>
 <body>

@@ -3,7 +3,7 @@ import contains from '@ungap/node-contains';
 
 import {LIE} from './lie.js';
 
-const {create, freeze, keys} = Object;
+const {create, keys} = Object;
 const wickedElements = new WeakMap;
 const defined = new Map;
 
@@ -118,7 +118,7 @@ export const define = (selector, definition) => {
   selectors.push(selector);
   components.push({
     listeners,
-    definition: freeze(definition),
+    definition,
     wm: new WeakMap
   });
   upgrade(document.documentElement);

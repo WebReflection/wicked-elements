@@ -59,7 +59,6 @@ var wickedElements = (function (exports) {
   } : Promise;
 
   var create = Object.create,
-      freeze = Object.freeze,
       keys = Object.keys;
   var wickedElements = new WeakMap();
   var defined = new Map();
@@ -187,7 +186,7 @@ var wickedElements = (function (exports) {
     selectors.push(selector);
     components.push({
       listeners: listeners,
-      definition: freeze(definition),
+      definition: definition,
       wm: new WeakMap()
     });
     upgrade(document.documentElement);

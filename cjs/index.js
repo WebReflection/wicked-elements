@@ -4,7 +4,7 @@ const contains = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* 
 
 const {LIE} = require('./lie.js');
 
-const {create, freeze, keys} = Object;
+const {create, keys} = Object;
 const wickedElements = new WeakMap;
 const defined = new Map;
 
@@ -119,7 +119,7 @@ const define = (selector, definition) => {
   selectors.push(selector);
   components.push({
     listeners,
-    definition: freeze(definition),
+    definition,
     wm: new WeakMap
   });
   upgrade(document.documentElement);

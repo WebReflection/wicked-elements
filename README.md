@@ -1,4 +1,4 @@
-# wickedElements
+# wickedElements 🧙
 
 <sup>**Social Media Photo by [Jonatan Pie](https://unsplash.com/@r3dmax) on [Unsplash](https://unsplash.com/)**</sup>
 
@@ -32,7 +32,7 @@ const {define, get, upgrade, whenDefined} = require('wicked-elements');
 
 Exact same [customElements API](https://html.spec.whatwg.org/multipage/custom-elements.html#dom-window-customelements), with the following differences:
 
-  * `wickedElements.get(CSS)` returns the _frozen_ component definition, which should be an object literal, or a combination of definitions (i.e. `Object.assign({}, BaseDefinition, OverwritesDefinition)`)
+  * `wickedElements.get(CSS)` returns the component definition, which should be an object literal, or a combination of definitions (i.e. `Object.assign({}, BaseDefinition, OverwritesDefinition)`)
   * `wickedElements.define(CSS, definition)` accepts any _CSS_ selector, where the more specific it is, the better.
   
 The `definition` is a literal object with optional helpers/utilities described as such:
@@ -82,6 +82,64 @@ wickedElements.define(
   }
 );
 ```
+
+## F.A.Q.
+
+<details>
+  <summary>
+    <strong>Can I use 3rd parts libraries to render content?</strong>
+  </summary>
+  <div>
+  Sure thing! Following a [lighterhtml](https://github.com/WebReflection/lighterhtml#readme) integration example, also [live in CodePen](https://codepen.io/WebReflection/pen/qBdOzWj?editors=0010):
+
+```js
+import {render, html, svg} from 'lighterhtml';
+const LighterHTML = {
+  html() { return render(this.element, html.apply(null, arguments)); },
+  svg() { return render(this.element, svg.apply(null, arguments)); }
+};
+
+import {define} from 'wicked-elements';
+define('.my-component', {
+  ...LighterHTML,
+  init() {
+    this.render();
+  },
+  render() {
+    this.html`<h3>Hello 👋</h3>`;
+  }
+});
+```
+  </div>
+</details>
+
+<details>
+  <summary>
+    <strong>Can I haz _hooks_ too?</strong>
+  </summary>
+  <div>
+  Here you go: [augmentor](https://github.com/WebReflection/augmentor#readme) is just perfect for this use case 😉 and you can test it [live on CodePen](https://codepen.io/WebReflection/pen/poJjXPg?editors=0010).
+
+```js
+import {augmentor, useState} from 'augmentor';
+import {define} from 'wicked-elements';
+define('button.counter', {
+  init() {
+    // augment once any method, and that's it 🦄
+    this.render = augmentor(this.render.bind(this));
+    this.render();
+  },
+  render() {
+    const [counter, update] = useState(0);
+    const {element} = this;
+    element.onclick = () => update(counter + 1);
+    element.textContent = `${counter} clicks`;
+  }
+});
+```
+  </div>
+</details>
+
 
 
 ## Examples
