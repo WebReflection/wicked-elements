@@ -118,7 +118,9 @@ define('.my-component', {
   </summary>
   <div>
 
-  Here you go: <a href="https://github.com/WebReflection/augmentor#readme">augmentor</a> is just perfect for this use case 😉 and you can test it <a href="https://codepen.io/WebReflection/pen/poJjXPg?editors=0010">live on CodePen</a>.
+  You can either check **[hookedElements](https://github.com/WebReflection/hooked-elements#readme)** for an out-of-the-box solution, or you could use <a href="https://github.com/WebReflection/augmentor#readme">augmentor</a>, which is just perfect for this use case 😉, which is indeed exactly what _hookedElements_ use (it's just automatically integrated).
+
+  Test it <a href="https://codepen.io/WebReflection/pen/poJjXPg?editors=0010">live on CodePen</a>.
 
 ```js
 import {augmentor, useState} from 'augmentor';
