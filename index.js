@@ -146,7 +146,7 @@ var wickedElements = (function (exports) {
     for (var k = keys(definition), i = 0, length = k.length; i < length; i++) {
       var listener = k[i];
 
-      if (/^on/.test(listener)) {
+      if (/^on/.test(listener) && !/Options$/.test(listener)) {
         var options = definition[listener + 'Options'] || false;
         var lower = listener.toLowerCase();
         var type = lower.slice(2);
