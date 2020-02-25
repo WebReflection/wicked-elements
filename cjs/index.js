@@ -91,7 +91,7 @@ const define = (selector, definition) => {
   const retype = create(null);
   for (let k = keys(definition), i = 0, {length} = k; i < length; i++) {
     let listener = k[i];
-    if (/^on/.test(listener)) {
+    if (/^on/.test(listener) && !/Options$/.test(listener)) {
       const options = definition[listener + 'Options'] || false;
       const lower = listener.toLowerCase();
       let type = lower.slice(2);
