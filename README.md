@@ -55,7 +55,7 @@ wickedElements.define(
     // Custom Elements like callbacks, without the redundant `Callback` suffix
     connected() {},
     disconnected() {},
-    attributeChanged(name, value, oldValue) {},
+    attributeChanged(name, oldValue, newValue) {},
 
     // as optional property used only if `attributeChanged` is defined,
     // it will eventually confine `attributeChanged(...)` calls
