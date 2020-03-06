@@ -248,7 +248,7 @@ var wickedElements = (function (exports) {
           oldValue = this.oldValue,
           target = this.target;
       var attributeFilter = observerDetails.attributeFilter;
-      if (!attributeFilter || -1 < attributeFilter.indexOf(attributeName)) handler.attributeChanged(attributeName, target.getAttribute(attributeName), oldValue);
+      if (!attributeFilter || -1 < attributeFilter.indexOf(attributeName)) handler.attributeChanged(attributeName, oldValue, target.getAttribute(attributeName));
     }
   }
 

@@ -187,8 +187,8 @@ function onAttributeChanged(handler) {
     if (!attributeFilter || -1 < attributeFilter.indexOf(attributeName))
       handler.attributeChanged(
         attributeName,
-        target.getAttribute(attributeName),
-        oldValue
+        oldValue,
+        target.getAttribute(attributeName)
       );
   }
 }
