@@ -16,6 +16,12 @@ const {define, get, upgrade, whenDefined} = require('wicked-elements');
 </script>
 ```
 
+## V2 Breaking/Changes
+
+There was asymmetry with native Custom Elements `attributeChangedCallback(name, oldValue, newValue)` which has now been fixed.
+
+Before, `attributeChanged(name, newValue, oldValue)` was the behavior, in V2 is aligned with native Custom Elements, so it's now `attributeChanged(name, oldValue, newValue)`.
+
 
 ## V1 Breaking/Changes
 
