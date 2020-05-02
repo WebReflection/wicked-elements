@@ -24,7 +24,7 @@
     "behavior"
   ],
   "dependencies": {
-    "@ungap/element-matches": "^0.1.0",
+    "@ungap/element-matches": "^0.2.0",
     "@ungap/node-contains": "^0.1.0"
   },
   "devDependencies": {
