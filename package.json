@@ -6,8 +6,9 @@
   "module": "esm/index.js",
   "unpkg": "min.js",
   "scripts": {
-    "build": "npm run cjs && npm run rollup:new && npm run rollup:babel && npm run min && npm run size && npm run test",
+    "build": "npm run cjs && npm run rollup:new && npm run rollup:babel && npm run rollup:module && npm run min && npm run size && npm run test",
     "cjs": "ascjs --no-default esm cjs",
+    "rollup:module": "rollup --config rollup/module.config.js",
     "rollup:new": "rollup --config rollup/new.config.js",
     "rollup:babel": "rollup --config rollup/babel.config.js",
     "min": "uglifyjs index.js --support-ie8 --comments=/^!/ -c -m -o min.js",
@@ -35,6 +36,7 @@
     "http-server": "^0.12.1",
     "rollup": "^2.0.6",
     "rollup-plugin-babel": "^4.4.0",
+    "rollup-plugin-babel-minify": "^10.0.0",
     "rollup-plugin-includepaths": "^0.2.3",
     "rollup-plugin-node-resolve": "^5.2.0",
     "rollup-plugin-terser": "^5.3.0",
