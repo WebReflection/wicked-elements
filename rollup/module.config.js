@@ -1,7 +1,7 @@
 import resolve from 'rollup-plugin-node-resolve';
 import babel from 'rollup-plugin-babel';
 import includePaths from 'rollup-plugin-includepaths';
-import minify from 'rollup-plugin-babel-minify'
+import { terser } from "rollup-plugin-terser";
 
 const settings = {
   input: './esm/index.js',
@@ -28,6 +28,6 @@ export default [
   {
     ...settings,  
     output: {...settings.output, file: './bundle-min.mjs' },
-    plugins: [...settings.plugins, minify()]
+    plugins: [...settings.plugins, terser()]
   }
 ]
