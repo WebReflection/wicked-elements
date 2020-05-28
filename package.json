@@ -28,17 +28,17 @@
     "@ungap/node-contains": "^0.2.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.9.6",
-    "@babel/preset-env": "^7.9.6",
+    "@babel/core": "^7.10.1",
+    "@babel/preset-env": "^7.10.1",
     "@ungap/degap": "^0.2.0",
-    "ascjs": "^4.0.0",
+    "ascjs": "^4.0.1",
     "http-server": "^0.12.3",
-    "rollup": "^2.7.6",
+    "rollup": "^2.11.2",
     "rollup-plugin-babel": "^4.4.0",
     "rollup-plugin-includepaths": "^0.2.3",
     "rollup-plugin-node-resolve": "^5.2.0",
-    "rollup-plugin-terser": "^5.3.0",
-    "uglify-js": "^3.9.2"
+    "rollup-plugin-terser": "^6.1.0",
+    "uglify-js": "^3.9.4"
   },
   "repository": {
     "type": "git",
