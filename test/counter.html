@@ -5,20 +5,52 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>wicked counter</title>
-  <script src="../min.js"></script>
-  <script>
-  wickedElements.define('div.is-counter', {
-    onclick: function () {
-      var span = this.element.querySelector('span');
-      span.textContent = parseFloat(span.textContent) + 1;
+  <script type="module">
+  import {define} from '//unpkg.com/wicked-elements?module';
+
+  define('div.counter', {
+    init() {
+      const nodes = this.element.querySelectorAll('button, span');
+      this.dec = nodes[0];
+      this.count = nodes[1];
+      this.inc = nodes[2];
+    },
+    onclick({target}) {
+      switch (target) {
+        case this.dec:
+          this.count.textContent--;
+          break;
+        case this.inc:
+          this.count.textContent++;
+          break;
+      }
     }
   });
   </script>
+  <style>
+    div.counter {
+      font-size: 200%;
+    }
+    div.counter span {
+      width: 4rem;
+      display: inline-block;
+      text-align: center;
+    }
+    div.counter button {
+      width: 64px;
+      height: 64px;
+      border: none;
+      border-radius: 10px;
+      background-color: seagreen;
+      color: white;
+    }
+  </style>
 </head>
 <body>
-  <div class="is-counter">
+  <div class="counter">
+    <button>-</button>
     <span>0</span>
-    <button>+1</button>
+    <button>+</button>
   </div>
 </body>
 </html>
