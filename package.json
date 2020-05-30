@@ -29,7 +29,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.10.2",
-    "@babel/preset-env": "^7.10.1",
+    "@babel/preset-env": "^7.10.2",
     "@ungap/degap": "^0.2.0",
     "ascjs": "^4.0.1",
     "http-server": "^0.12.3",
