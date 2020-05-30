@@ -28,7 +28,7 @@
     "@ungap/node-contains": "^0.2.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.10.1",
+    "@babel/core": "^7.10.2",
     "@babel/preset-env": "^7.10.1",
     "@ungap/degap": "^0.2.0",
     "ascjs": "^4.0.1",
