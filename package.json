@@ -33,7 +33,7 @@
     "@ungap/degap": "^0.2.0",
     "ascjs": "^4.0.1",
     "http-server": "^0.12.3",
-    "rollup": "^2.11.2",
+    "rollup": "^2.12.1",
     "rollup-plugin-babel": "^4.4.0",
     "rollup-plugin-includepaths": "^0.2.3",
     "rollup-plugin-node-resolve": "^5.2.0",
