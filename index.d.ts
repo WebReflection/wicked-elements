@@ -67,6 +67,19 @@ declare const wickedElements: {
   ): void;
 
   /**
+   * Defines asynchronously a wicked element via a selector and a callback.
+   * The callback must return a Promise that resolves through a component
+   * definition.
+   * 
+   * @example
+   * defineAsync(selector, () => import('/comp.js'));
+   */
+  defineAsync(
+    selector: string,
+    callback: Function
+  ): void;
+
+  /**
    * Retrieves a wicked element definition.
    */
   get(selector: string): void | IWickedElementsComponent;

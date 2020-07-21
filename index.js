@@ -193,7 +193,7 @@ var wickedElements = (function (exports) {
     upgrade(document.documentElement);
     if (!lazy.has(selector)) (defined.get(selector) || waitDefined(selector)).resolve();
   };
-  var defineAsync = function defineAsync(selector, callback) {
+  var defineAsync = function defineAsync(selector, callback, _) {
     var i = selectors.length;
     lazy.add(selector);
     define(selector, {
@@ -201,10 +201,11 @@ var wickedElements = (function (exports) {
         if (lazy.has(selector)) {
           lazy["delete"](selector);
           callback().then(function (_ref) {
-            var component = _ref["default"];
+            var definition = _ref["default"];
             selectors.splice(i, 1);
             components.splice(i, 1);
-            define(selector, component);
+
+            (_ || define)(selector, definition);
           });
         }
       }
