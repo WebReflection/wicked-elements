@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script type="module">
+  import {defineAsync} from '../esm/index.js';
+
+  defineAsync('div', () => import('./div.js'));
+
+  setTimeout(() => {
+    document.body.innerHTML = '<div>loading 1</div><div>loading 2</div>';
+  });
+  </script>
+</head>
+</html>

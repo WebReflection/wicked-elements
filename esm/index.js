@@ -11,6 +11,7 @@ const uid = '_' + Math.random();
 const connected = 'connected';
 const disconnected = 'dis' + connected;
 
+const lazy = new Set;
 const selectors = [];
 const components = [];
 
@@ -122,7 +123,25 @@ export const define = (selector, definition) => {
     wm: new WeakMap
   });
   upgrade(document.documentElement);
-  (defined.get(selector) || waitDefined(selector)).resolve();
+  if (!lazy.has(selector))
+    (defined.get(selector) || waitDefined(selector)).resolve();
+};
+
+export const defineAsync = (selector, callback) => {
+  const i = selectors.length;
+  lazy.add(selector);
+  define(selector, {
+    init() {
+      if (lazy.has(selector)) {
+        lazy.delete(selector);
+        callback().then(({default: component}) => {
+          selectors.splice(i, 1);
+          components.splice(i, 1);
+          define(selector, component);
+        });
+      }
+    }
+  });
 };
 
 export const get = selector => {

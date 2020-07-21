@@ -5,8 +5,8 @@
 An _all inclusive_ ~1.3K library to handle any element as if it was a Custom Element.
 
 ```js
-import {define, get, upgrade, whenDefined} from 'wicked-elements';
-const {define, get, upgrade, whenDefined} = require('wicked-elements');
+import {define, defineAsync, get, upgrade, whenDefined} from 'wicked-elements';
+const {define, defineAsync,get, upgrade, whenDefined} = require('wicked-elements');
 ```
 
 ```html
@@ -14,6 +14,24 @@ const {define, get, upgrade, whenDefined} = require('wicked-elements');
   // as global variable
   wickedElements.{define, get, upgrade, whenDefined};
 </script>
+```
+
+## New in V2.2
+
+Addded `defineAsync` method, so that definitions can land asynchronously, on demand.
+
+```js
+// main file
+import {defineAsync} from 'wicked-elements';
+
+defineAsync('.my-comp', () => import('/js/components/my-comp.js'));
+
+// /js/components/my-comp.js
+export default {
+  init() {
+    this.element.textContent = 'hello there!';
+  }
+};
 ```
 
 ## V2 Breaking/Changes

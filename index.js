@@ -65,6 +65,7 @@ var wickedElements = (function (exports) {
   var uid = '_' + Math.random();
   var connected = 'connected';
   var disconnected = 'dis' + connected;
+  var lazy = new Set();
   var selectors = [];
   var components = [];
   var empty = [];
@@ -190,7 +191,24 @@ var wickedElements = (function (exports) {
       wm: new WeakMap()
     });
     upgrade(document.documentElement);
-    (defined.get(selector) || waitDefined(selector)).resolve();
+    if (!lazy.has(selector)) (defined.get(selector) || waitDefined(selector)).resolve();
+  };
+  var defineAsync = function defineAsync(selector, callback) {
+    var i = selectors.length;
+    lazy.add(selector);
+    define(selector, {
+      init: function init() {
+        if (lazy.has(selector)) {
+          lazy["delete"](selector);
+          callback().then(function (_ref) {
+            var component = _ref["default"];
+            selectors.splice(i, 1);
+            components.splice(i, 1);
+            define(selector, component);
+          });
+        }
+      }
+    });
   };
   var get = function get(selector) {
     var i = selectors.indexOf(selector);
@@ -262,6 +280,7 @@ var wickedElements = (function (exports) {
   }
 
   exports.define = define;
+  exports.defineAsync = defineAsync;
   exports.get = get;
   exports.upgrade = upgrade;
   exports.whenDefined = whenDefined;
