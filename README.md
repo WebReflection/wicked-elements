@@ -6,7 +6,7 @@ An _all inclusive_ ~1.3K library to handle any element as if it was a Custom Ele
 
 ```js
 import {define, defineAsync, get, upgrade, whenDefined} from 'wicked-elements';
-const {define, defineAsync,get, upgrade, whenDefined} = require('wicked-elements');
+const {define, defineAsync, get, upgrade, whenDefined} = require('wicked-elements');
 ```
 
 ```html
