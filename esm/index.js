@@ -128,13 +128,13 @@ export const define = (selector, definition) => {
 };
 
 export const defineAsync = (selector, callback, _) => {
-  const i = selectors.length;
   lazy.add(selector);
   define(selector, {
     init() {
       if (lazy.has(selector)) {
         lazy.delete(selector);
         callback().then(({default: definition}) => {
+          const i = selectors.indexOf(selector);
           selectors.splice(i, 1);
           components.splice(i, 1);
           (_ || define)(selector, definition);

@@ -6,11 +6,22 @@
   <script type="module">
   import {defineAsync} from '../esm/index.js';
 
-  defineAsync('div', () => import('./div.js'));
+  const promise = () => new Promise(resolve => resolve({
+    default: {
+      init() {
+        this.element.innerHTML = 'OK';
+      }
+    }
+  }));
 
-  setTimeout(() => {
-    document.body.innerHTML = '<div>loading 1</div><div>loading 2</div>';
-  });
+  defineAsync('.test', promise);
+  defineAsync('.test2', promise);
+
   </script>
 </head>
+<body>
+  <div class="test">Hi</div>
+  <div class="test">Hi</div>
+  <div class="test2">Hi</div>
+</body>
 </html>
