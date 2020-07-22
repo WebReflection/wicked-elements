@@ -2,6 +2,7 @@ let i = 0;
 
 export default {
   init() {
-    this.element.textContent = `loaded ${++i}`;
+    const {className} = this.element;
+    this.element.textContent = `loaded ${className} ${++i}`;
   }
 };

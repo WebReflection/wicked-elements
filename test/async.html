@@ -6,6 +6,7 @@
   <script type="module">
   import {defineAsync} from '../esm/index.js';
 
+  /*
   const promise = () => new Promise(resolve => resolve({
     default: {
       init() {
@@ -13,9 +14,10 @@
       }
     }
   }));
+  */
 
-  defineAsync('.test', promise);
-  defineAsync('.test2', promise);
+  defineAsync('.test', () => import('./div.js'));
+  defineAsync('.test2', () => import('./div.js'));
 
   </script>
 </head>
