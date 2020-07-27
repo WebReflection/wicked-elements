@@ -38,8 +38,8 @@
   },
   "unpkg": "min.js",
   "dependencies": {
-    "as-custom-element": "^0.2.0",
-    "shared-document-observer": "^0.1.2"
+    "@webreflection/elements-utils": "^0.2.0",
+    "as-custom-element": "^0.2.0"
   },
   "repository": {
     "type": "git",
