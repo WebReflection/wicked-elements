@@ -16,40 +16,9 @@ const {define, defineAsync, get, upgrade, whenDefined} = require('wicked-element
 </script>
 ```
 
-## New in V2.2
+### All versions changes
 
-Addded `defineAsync` method, so that definitions can land asynchronously, on demand.
-
-```js
-// main file
-import {defineAsync} from 'wicked-elements';
-
-defineAsync('.my-comp', () => import('/js/components/my-comp.js'));
-
-// /js/components/my-comp.js
-export default {
-  init() {
-    this.element.textContent = 'hello there!';
-  }
-};
-```
-
-## V2 Breaking/Changes
-
-There was asymmetry with native Custom Elements `attributeChangedCallback(name, oldValue, newValue)` which has now been fixed.
-
-Before, `attributeChanged(name, newValue, oldValue)` was the behavior, in V2 is aligned with native Custom Elements, so it's now `attributeChanged(name, oldValue, newValue)`.
-
-
-## V1 Breaking/Changes
-
-  * **half of the size**, _wickedElements_ is now less than 1.5K, more like 1.1K in its ES2015 compatible environments version (see [new.js](./new.js) file)
-  * _wickedElements_ requires **zero polyfills** whatsoever: everything is provided, and granted to work, out of the box
-  * _wickedElements_ has been tested, and works as is in **IE11 and** in **every** other **Desktop or Mobile browser** compatible with `WeakMap` and `MutationObserver`.
-  * the v0 `style` feature has been **removed**, as coupling styles within JS, same way you'd do by including a CSS file, didn't really add much value
-  * **dropped classes** as definition, just pass an object literal
-  * `this.element` automatically provided and already available in the `init`
-  * direct `connected`, `disconnected`, and `attributeChanged` invokes (no more event driven)
+Please read [VERSIONS.md](./VERSIONS.md) to know more about historical changes, including the breaking one.
 
 
 ## API
@@ -79,13 +48,10 @@ wickedElements.define(
     // Custom Elements like callbacks, without the redundant `Callback` suffix
     connected() {},
     disconnected() {},
-    attributeChanged(name, oldValue, newValue) {},
 
-    // as optional property used only if `attributeChanged` is defined,
-    // it will eventually confine `attributeChanged(...)` calls
-    // by monitoring only a well known set of attributes
+    // invokes `attributeChanged` if any of these attributes is changed, set, removed
     observedAttributes: ['data-thing', 'value'],
-    // if omitted, or empty array, will notify all attributes changes
+    attributeChanged(name, oldValue, newValue) {},
 
     // zero, one, or more, listeners, automatically setup per each component
     // the context of each method-listener will be the wicked instance,

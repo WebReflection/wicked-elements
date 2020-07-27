@@ -3,19 +3,14 @@
   "version": "2.2.2",
   "description": "Components for the DOM as you've never seen before",
   "main": "./cjs/index.js",
-  "module": "./esm/index.js",
-  "unpkg": "min.js",
   "scripts": {
-    "build": "npm run cjs && npm run rollup:new && npm run rollup:babel && npm run min && npm run size && npm run test",
-    "cjs": "ascjs --no-default esm cjs",
-    "rollup:new": "rollup --config rollup/new.config.js",
-    "rollup:babel": "rollup --config rollup/babel.config.js",
-    "min": "terser index.js --comments=/^!/ -c -m -o min.js",
-    "size": "cat min.js | gzip -9 | wc -c && cat min.js | brotli | wc -c && cat new.js | gzip -9 | wc -c && cat new.js | brotli | wc -c",
-    "test": "echo \"$(tput smso)$(tput bold) Please check the test folder $(tput sgr0)\" && http-server ."
+    "build": "npm run cjs && npm run rollup:es && npm run rollup:babel && npm run min && npm run size",
+    "cjs": "ascjs esm cjs",
+    "rollup:es": "rollup --config rollup/es.config.js && sed -i.bck 's/^var /self./' es.js && rm -rf es.js.bck",
+    "rollup:babel": "rollup --config rollup/babel.config.js && sed -i.bck 's/^var /self./' index.js && rm -rf index.js.bck",
+    "min": "terser index.js --comments='/^!/' -c -m -o min.js",
+    "size": "cat min.js | gzip -9 | wc -c && cat min.js | brotli | wc -c && cat new.js | gzip -9 | wc -c && cat new.js | brotli | wc -c"
   },
-  "author": "Andrea Giammarchi",
-  "license": "ISC",
   "keywords": [
     "dom",
     "custom",
@@ -23,22 +18,28 @@
     "define",
     "behavior"
   ],
-  "dependencies": {
-    "@ungap/element-matches": "^0.2.0",
-    "@ungap/node-contains": "^0.2.0"
-  },
+  "author": "Andrea Giammarchi",
+  "license": "ISC",
   "devDependencies": {
     "@babel/core": "^7.10.5",
     "@babel/preset-env": "^7.10.4",
-    "@ungap/degap": "^0.2.0",
+    "@rollup/plugin-babel": "^5.1.0",
+    "@rollup/plugin-node-resolve": "^8.4.0",
     "ascjs": "^4.0.1",
-    "http-server": "^0.12.3",
-    "rollup": "^2.22.1",
-    "rollup-plugin-babel": "^4.4.0",
-    "rollup-plugin-includepaths": "^0.2.3",
-    "rollup-plugin-node-resolve": "^5.2.0",
+    "rollup": "^2.23.0",
     "rollup-plugin-terser": "^6.1.0",
     "terser": "^4.8.0"
+  },
+  "module": "./esm/index.js",
+  "type": "module",
+  "exports": {
+    "import": "./esm/index.js",
+    "default": "./cjs/index.js"
+  },
+  "unpkg": "min.js",
+  "dependencies": {
+    "as-custom-element": "^0.2.0",
+    "shared-document-observer": "^0.1.2"
   },
   "repository": {
     "type": "git",
@@ -47,10 +48,5 @@
   "bugs": {
     "url": "https://github.com/WebReflection/wicked-elements/issues"
   },
-  "homepage": "https://github.com/WebReflection/wicked-elements#readme",
-  "type": "module",
-  "exports": {
-    "import": "./esm/index.js",
-    "default": "./cjs/index.js"
-  }
+  "homepage": "https://github.com/WebReflection/wicked-elements#readme"
 }

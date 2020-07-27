@@ -1,20 +1,17 @@
 import {nodeResolve} from '@rollup/plugin-node-resolve';
-import babel from '@rollup/plugin-babel';
+import {terser} from 'rollup-plugin-terser';
 
 export default {
   input: './esm/index.js',
   plugins: [
     
     nodeResolve(),
-    babel({
-      presets: ['@babel/preset-env'],
-      babelHelpers: 'bundled'
-    })
+    terser()
   ],
   
   output: {
     exports: 'named',
-    file: './index.js',
+    file: './es.js',
     format: 'iife',
     name: 'wickedElements'
   }
