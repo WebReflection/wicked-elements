@@ -10,7 +10,7 @@ const lazy = new Set;
 const wicked = new WeakMap;
 
 const delegate = method => function () {
-  return method.apply(wicked.get(this), arguments);
+  method.apply(wicked.get(this), arguments);
 };
 
 const init = (value, wm, listeners, definition) => {

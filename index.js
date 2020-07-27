@@ -116,7 +116,7 @@ self.wickedElements = (function (exports) {
 
   var delegate = function delegate(method) {
     return function () {
-      return method.apply(wicked.get(this), arguments);
+      method.apply(wicked.get(this), arguments);
     };
   };
 
