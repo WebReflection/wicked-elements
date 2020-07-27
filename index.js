@@ -106,6 +106,68 @@ self.wickedElements = (function (exports) {
     back.call(this);
   }
 
+  var Lie = typeof Promise === 'function' ? Promise : function (fn) {
+    var queue = [],
+        resolved = 0;
+    fn(function () {
+      resolved = 1;
+      queue.splice(0).forEach(then);
+    });
+    return {
+      then: then
+    };
+
+    function then(fn) {
+      return resolved ? setTimeout(fn) : queue.push(fn), this;
+    }
+  };
+  var utils = (function (query, config, defined, setup) {
+    // exports
+    var get = function get(selector) {
+      var i = query.indexOf(selector);
+      return i < 0 ? void 0 : config[i].o;
+    };
+
+    var upgrade = function upgrade(node) {
+      query.forEach(setup, node);
+    };
+
+    var whenDefined = function whenDefined(selector) {
+      if (!(selector in defined)) {
+        var _,
+            $ = new Lie(function ($) {
+          _ = $;
+        });
+
+        defined[selector] = {
+          _: _,
+          $: $
+        };
+      }
+
+      return defined[selector].$;
+    }; // util
+
+
+    var setupList = function setupList(nodes) {
+      for (var i = 0, length = nodes.length; i < length; i++) {
+        upgrade(nodes[i]);
+      }
+    };
+
+    set.add(function (records) {
+      for (var i = 0, length = records.length; i < length; i++) {
+        setupList(records[i].addedNodes);
+      }
+    });
+    return {
+      get: get,
+      upgrade: upgrade,
+      whenDefined: whenDefined,
+      $: setupList
+    };
+  });
+
   var create = Object.create,
       keys = Object.keys;
   var config = [];
@@ -113,6 +175,26 @@ self.wickedElements = (function (exports) {
   var defined = {};
   var lazy = new Set();
   var wicked = new WeakMap();
+
+  var _utils = utils(query, config, defined, function (selector, i) {
+    var querySelectorAll = this.querySelectorAll;
+
+    if (querySelectorAll) {
+      if ((this.matches || this.webkitMatchesSelector || this.msMatchesSelector).call(this, selector)) {
+        var _config$i = config[i],
+            m = _config$i.m,
+            l = _config$i.l,
+            o = _config$i.o;
+        if (!m.has(this)) init(this, m, l, o);
+      }
+
+      setupList(querySelectorAll.call(this, query));
+    }
+  }),
+      get = _utils.get,
+      upgrade = _utils.upgrade,
+      whenDefined = _utils.whenDefined,
+      setupList = _utils.$;
 
   var delegate = function delegate(method) {
     return function () {
@@ -137,36 +219,6 @@ self.wickedElements = (function (exports) {
     wm.set(asCustomElement(value, definition), 0);
   };
 
-  var setupList = function setupList(nodes) {
-    query.forEach.call(nodes, upgrade);
-  };
-
-  var upgradeNodes = function upgradeNodes(_ref) {
-    var addedNodes = _ref.addedNodes;
-    setupList(addedNodes);
-  };
-
-  var Lie = typeof Promise === 'function' ? Promise : function (fn) {
-    var queue = [],
-        resolved = false;
-    fn(function () {
-      resolved = true;
-      queue.splice(0).forEach(then);
-    });
-    return {
-      then: then,
-      "catch": function _catch() {
-        return this;
-      }
-    };
-
-    function then(fn) {
-      return resolved ? setTimeout(fn) : queue.push(fn), this;
-    }
-  };
-  set.add(function (records) {
-    records.forEach(upgradeNodes);
-  });
   var define = function define(selector, definition) {
     if (get(selector)) throw new Error('duplicated: ' + selector);
     var listeners = [];
@@ -217,8 +269,8 @@ self.wickedElements = (function (exports) {
       init: function init() {
         if (lazy.has(selector)) {
           lazy["delete"](selector);
-          callback().then(function (_ref2) {
-            var definition = _ref2["default"];
+          callback().then(function (_ref) {
+            var definition = _ref["default"];
             var i = query.indexOf(selector);
             query.splice(i, 1);
             config.splice(i, 1);
@@ -229,44 +281,6 @@ self.wickedElements = (function (exports) {
       }
     });
   };
-  var get = function get(selector) {
-    var i = query.indexOf(selector);
-    return i < 0 ? void 0 : config[i].o;
-  };
-  var upgrade = function upgrade(node) {
-    query.forEach(setup, node);
-  };
-  var whenDefined = function whenDefined(selector) {
-    if (!(selector in defined)) {
-      var _,
-          $ = new Lie(function ($) {
-        _ = $;
-      });
-
-      defined[selector] = {
-        _: _,
-        $: $
-      };
-    }
-
-    return defined[selector].$;
-  };
-
-  function setup(selector, i) {
-    var querySelectorAll = this.querySelectorAll;
-
-    if (querySelectorAll) {
-      if ((this.matches || this.webkitMatchesSelector || this.msMatchesSelector).call(this, selector)) {
-        var _config$i = config[i],
-            m = _config$i.m,
-            l = _config$i.l,
-            o = _config$i.o;
-        if (!m.has(this)) init(this, m, l, o);
-      }
-
-      setupList(querySelectorAll.call(this, query));
-    }
-  }
 
   exports.define = define;
   exports.defineAsync = defineAsync;

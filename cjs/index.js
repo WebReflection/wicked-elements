@@ -1,6 +1,6 @@
 'use strict';
 const asCustomElement = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('as-custom-element'));
-const sdo = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('shared-document-observer'));
+const utils = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('@webreflection/elements-utils'));
 
 const {create, keys} = Object;
 
@@ -9,6 +9,25 @@ const query = [];
 const defined = {};
 const lazy = new Set;
 const wicked = new WeakMap;
+
+const {
+  get, upgrade, whenDefined,
+  $: setupList
+} = utils(query, config, defined, function (selector, i) {
+  const {querySelectorAll} = this;
+  if (querySelectorAll) {
+    if ((
+      this.matches ||
+      this.webkitMatchesSelector ||
+      this.msMatchesSelector
+    ).call(this, selector)) {
+      const {m, l, o} = config[i];
+      if (!m.has(this))
+        init(this, m, l, o);
+    }
+    setupList(querySelectorAll.call(this, query));
+  }
+});
 
 const delegate = method => function () {
   method.apply(wicked.get(this), arguments);
@@ -25,30 +44,6 @@ const init = (value, wm, listeners, definition) => {
   wicked.set(value, handler);
   wm.set(asCustomElement(value, definition), 0);
 };
-
-const setupList = nodes => {
-  query.forEach.call(nodes, upgrade);
-};
-
-const upgradeNodes = ({addedNodes}) => {
-  setupList(addedNodes);
-};
-
-const Lie = typeof Promise === 'function' ? Promise : function (fn) {
-  let queue = [], resolved = false;
-  fn(() => {
-    resolved = true;
-    queue.splice(0).forEach(then);
-  });
-  return {then, catch() { return this; }};
-  function then(fn) {
-    return (resolved ? setTimeout(fn) : queue.push(fn)), this;
-  }
-};
-
-sdo.add(records => {
-  records.forEach(upgradeNodes);
-});
 
 const define = (selector, definition) => {
   if (get(selector))
@@ -104,38 +99,6 @@ const defineAsync = (selector, callback, _) => {
 };
 exports.defineAsync = defineAsync;
 
-const get = selector => {
-  const i = query.indexOf(selector);
-  return i < 0 ? void 0 : config[i].o;
-};
 exports.get = get;
-
-const upgrade = node => {
-  query.forEach(setup, node);
-};
 exports.upgrade = upgrade;
-
-const whenDefined = selector => {
-  if (!(selector in defined)) {
-    let _, $ = new Lie($ => { _ = $; });
-    defined[selector] = {_, $};
-  }
-  return defined[selector].$;
-};
 exports.whenDefined = whenDefined;
-
-function setup(selector, i) {
-  const {querySelectorAll} = this;
-  if (querySelectorAll) {
-    if ((
-      this.matches ||
-      this.webkitMatchesSelector ||
-      this.msMatchesSelector
-    ).call(this, selector)) {
-      const {m, l, o} = config[i];
-      if (!m.has(this))
-        init(this, m, l, o);
-    }
-    setupList(querySelectorAll.call(this, query));
-  }
-}
