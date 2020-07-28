@@ -13,19 +13,23 @@ const wicked = new WeakMap;
 const {
   get, upgrade, whenDefined,
   $: setupList
-} = utils(query, config, defined, function (selector, i) {
-  const {querySelectorAll} = this;
-  if (querySelectorAll) {
+} = utils(query, config, defined, function (element, i, nested) {
+  if (nested) {
     if ((
-      this.matches ||
-      this.webkitMatchesSelector ||
-      this.msMatchesSelector
-    ).call(this, selector)) {
+      element.matches ||
+      element.webkitMatchesSelector ||
+      element.msMatchesSelector
+    ).call(element, query[i])) {
       const {m, l, o} = config[i];
-      if (!m.has(this))
-        init(this, m, l, o);
+      if (!m.has(element))
+        init(element, m, l, o);
     }
-    setupList(querySelectorAll.call(this, query));
+    setupList(element.querySelectorAll(query), !nested);
+  }
+  else {
+    const {m, l, o} = config[i];
+    if (!m.has(element))
+      init(element, m, l, o);
   }
 });
 
@@ -75,7 +79,7 @@ const define = (selector, definition) => {
   }
   query.push(selector);
   config.push({m: new WeakMap, l: listeners, o: definition});
-  setupList(document.querySelectorAll(selector));
+  setupList(document.querySelectorAll(selector), true);
   whenDefined(selector);
   if (!lazy.has(selector))
     defined[selector]._();

@@ -38,8 +38,8 @@
   },
   "unpkg": "min.js",
   "dependencies": {
-    "@webreflection/elements-utils": "^0.2.0",
-    "as-custom-element": "^0.2.2"
+    "@webreflection/elements-utils": "^0.2.2",
+    "as-custom-element": "^0.2.3"
   },
   "repository": {
     "type": "git",

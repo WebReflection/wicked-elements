@@ -40,7 +40,7 @@ self.wickedElements = (function (exports) {
       var target = nodes[i];
 
       if (nested) {
-        if (target.querySelectorAll) {
+        if ('querySelectorAll' in target) {
           if (wm.has(target)) wm.get(target)[key].forEach(call, target);
           invoke(target.querySelectorAll('*'), key, !nested);
         }
@@ -134,7 +134,7 @@ self.wickedElements = (function (exports) {
     };
 
     var upgrade = function upgrade(node) {
-      query.forEach(setup, node);
+      upgradeNode(node, true);
     };
 
     var whenDefined = function whenDefined(selector) {
@@ -154,15 +154,21 @@ self.wickedElements = (function (exports) {
     }; // util
 
 
-    var setupList = function setupList(nodes) {
+    var setupList = function setupList(nodes, nested) {
       for (var i = 0, length = nodes.length; i < length; i++) {
-        upgrade(nodes[i]);
+        if (!nested || 'querySelectorAll' in nodes[i]) upgradeNode(nodes[i], nested);
+      }
+    };
+
+    var upgradeNode = function upgradeNode(node, nested) {
+      for (var i = 0, length = query.length; i < length; i++) {
+        setup(node, i, nested);
       }
     };
 
     set.add(function (records) {
       for (var i = 0, length = records.length; i < length; i++) {
-        setupList(records[i].addedNodes);
+        setupList(records[i].addedNodes, true);
       }
     });
     return {
@@ -181,19 +187,23 @@ self.wickedElements = (function (exports) {
   var lazy = new Set();
   var wicked = new WeakMap();
 
-  var _utils = utils(query, config, defined, function (selector, i) {
-    var querySelectorAll = this.querySelectorAll;
-
-    if (querySelectorAll) {
-      if ((this.matches || this.webkitMatchesSelector || this.msMatchesSelector).call(this, selector)) {
+  var _utils = utils(query, config, defined, function (element, i, nested) {
+    if (nested) {
+      if ((element.matches || element.webkitMatchesSelector || element.msMatchesSelector).call(element, query[i])) {
         var _config$i = config[i],
             m = _config$i.m,
             l = _config$i.l,
             o = _config$i.o;
-        if (!m.has(this)) init(this, m, l, o);
+        if (!m.has(element)) init(element, m, l, o);
       }
 
-      setupList(querySelectorAll.call(this, query));
+      setupList(element.querySelectorAll(query), !nested);
+    } else {
+      var _config$i2 = config[i],
+          _m = _config$i2.m,
+          _l = _config$i2.l,
+          _o = _config$i2.o;
+      if (!_m.has(element)) init(element, _m, _l, _o);
     }
   }),
       get = _utils.get,
@@ -265,7 +275,7 @@ self.wickedElements = (function (exports) {
       l: listeners,
       o: definition
     });
-    setupList(document.querySelectorAll(selector));
+    setupList(document.querySelectorAll(selector), true);
     whenDefined(selector);
     if (!lazy.has(selector)) defined[selector]._();
   };
