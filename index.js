@@ -48,13 +48,13 @@ self.wickedElements = (function (exports) {
   };
 
   var mainLoop = function mainLoop(records) {
-    for (var parsed = new Set(), i = 0, length = records.length; i < length; i++) {
+    for (var c = new Set(), d = new Set(), i = 0, length = records.length; i < length; i++) {
       var _records$i2 = records[i],
           addedNodes = _records$i2.addedNodes,
           removedNodes = _records$i2.removedNodes;
-      invoke$1(addedNodes, 'c', parsed);
+      invoke$1(addedNodes, 'c', c);
       attributeChanged(sao.takeRecords());
-      invoke$1(removedNodes, 'd', parsed);
+      invoke$1(removedNodes, 'd', d);
     }
   };
 
