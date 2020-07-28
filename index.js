@@ -154,6 +154,10 @@ self.wickedElements = (function (exports) {
     }; // util
 
 
+    var matches = function matches(element, selector) {
+      return (element.matches || element.webkitMatchesSelector || element.msMatchesSelector).call(element, selector);
+    };
+
     var setupList = function setupList(nodes, nested) {
       for (var i = 0, length = nodes.length; i < length; i++) {
         if (!nested || 'querySelectorAll' in nodes[i]) upgradeNode(nodes[i], nested);
@@ -175,6 +179,7 @@ self.wickedElements = (function (exports) {
       get: get,
       upgrade: upgrade,
       whenDefined: whenDefined,
+      _: matches,
       $: setupList
     };
   });
@@ -189,26 +194,14 @@ self.wickedElements = (function (exports) {
 
   var _utils = utils(query, config, defined, function (element, i, nested) {
     if (nested) {
-      if ((element.matches || element.webkitMatchesSelector || element.msMatchesSelector).call(element, query[i])) {
-        var _config$i = config[i],
-            m = _config$i.m,
-            l = _config$i.l,
-            o = _config$i.o;
-        if (!m.has(element)) init(element, m, l, o);
-      }
-
+      if (matches(element, query[i])) init(element, config[i]);
       setupList(element.querySelectorAll(query), !nested);
-    } else {
-      var _config$i2 = config[i],
-          _m = _config$i2.m,
-          _l = _config$i2.l,
-          _o = _config$i2.o;
-      if (!_m.has(element)) init(element, _m, _l, _o);
-    }
+    } else init(element, config[i]);
   }),
       get = _utils.get,
       upgrade = _utils.upgrade,
       whenDefined = _utils.whenDefined,
+      matches = _utils._,
       setupList = _utils.$;
 
   var delegate = function delegate(method) {
@@ -217,22 +210,28 @@ self.wickedElements = (function (exports) {
     };
   };
 
-  var init = function init(value, wm, listeners, definition) {
-    var handler = create(definition, {
-      element: {
-        enumerable: true,
-        value: value
+  var init = function init(value, _ref) {
+    var m = _ref.m,
+        l = _ref.l,
+        o = _ref.o;
+
+    if (!m.has(value)) {
+      var handler = create(o, {
+        element: {
+          enumerable: true,
+          value: value
+        }
+      });
+      m.set(value, 0);
+      wicked.set(value, handler);
+
+      for (var i = 0, length = l.length; i < length; i++) {
+        value.addEventListener(l[i].t, handler, l[i].o);
       }
-    });
-    wm.set(value, 0);
-    wicked.set(value, handler);
 
-    for (var i = 0, length = listeners.length; i < length; i++) {
-      value.addEventListener(listeners[i].t, handler, listeners[i].o);
+      if (handler.init) handler.init();
+      asCustomElement(value, o);
     }
-
-    if (handler.init) handler.init();
-    asCustomElement(value, definition);
   };
 
   var define = function define(selector, definition) {
@@ -285,8 +284,8 @@ self.wickedElements = (function (exports) {
       init: function init() {
         if (lazy.has(selector)) {
           lazy["delete"](selector);
-          callback().then(function (_ref) {
-            var definition = _ref["default"];
+          callback().then(function (_ref2) {
+            var definition = _ref2["default"];
             var i = query.indexOf(selector);
             query.splice(i, 1);
             config.splice(i, 1);

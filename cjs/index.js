@@ -12,42 +12,37 @@ const wicked = new WeakMap;
 
 const {
   get, upgrade, whenDefined,
-  $: setupList
-} = utils(query, config, defined, function (element, i, nested) {
-  if (nested) {
-    if ((
-      element.matches ||
-      element.webkitMatchesSelector ||
-      element.msMatchesSelector
-    ).call(element, query[i])) {
-      const {m, l, o} = config[i];
-      if (!m.has(element))
-        init(element, m, l, o);
+  _: matches, $: setupList
+} = utils(
+  query, config, defined,
+  (element, i, nested) => {
+    if (nested) {
+      if (matches(element, query[i]))
+        init(element, config[i]);
+      setupList(element.querySelectorAll(query), !nested);
     }
-    setupList(element.querySelectorAll(query), !nested);
+    else
+      init(element, config[i]);
   }
-  else {
-    const {m, l, o} = config[i];
-    if (!m.has(element))
-      init(element, m, l, o);
-  }
-});
+);
 
 const delegate = method => function () {
   method.apply(wicked.get(this), arguments);
 };
 
-const init = (value, wm, listeners, definition) => {
-  const handler = create(definition, {
-    element: {enumerable: true, value}
-  });
-  wm.set(value, 0);
-  wicked.set(value, handler);
-  for (let i = 0, {length} = listeners; i < length; i++)
-    value.addEventListener(listeners[i].t, handler, listeners[i].o);
-  if (handler.init)
-    handler.init();
-  asCustomElement(value, definition);
+const init = (value, {m, l, o}) => {
+  if (!m.has(value)) {
+    const handler = create(o, {
+      element: {enumerable: true, value}
+    });
+    m.set(value, 0);
+    wicked.set(value, handler);
+    for (let i = 0, {length} = l; i < length; i++)
+      value.addEventListener(l[i].t, handler, l[i].o);
+    if (handler.init)
+      handler.init();
+    asCustomElement(value, o);
+  }
 };
 
 const define = (selector, definition) => {
