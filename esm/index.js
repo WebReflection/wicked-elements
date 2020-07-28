@@ -1,4 +1,3 @@
-import asCustomElement from 'as-custom-element';
 import utils from '@webreflection/elements-utils';
 
 const {create, keys} = Object;
@@ -11,9 +10,10 @@ const wicked = new WeakMap;
 
 const {
   get, upgrade, whenDefined,
-  $: setupList
+  $: setupList,
+  _: asCustomElement
 } = utils(
-  query, config, defined,
+  document, query, config, defined,
   (value, {m, l, o}) => {
     if (!m.has(value)) {
       const handler = create(o, {
