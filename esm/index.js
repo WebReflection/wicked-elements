@@ -11,26 +11,22 @@ const wicked = new WeakMap;
 
 const {
   get, upgrade, whenDefined,
-  _: matches, $: setupList
+  $: setupList
 } = utils(
   query, config, defined,
-  (value, i, parsed) => {
-    if (matches(value, query[i])) {
-      const {m, l, o} = config[i];
-      if (!m.has(value)) {
-        const handler = create(o, {
-          element: {enumerable: true, value}
-        });
-        m.set(value, 0);
-        wicked.set(value, handler);
-        for (let i = 0, {length} = l; i < length; i++)
-          value.addEventListener(l[i].t, handler, l[i].o);
-        if (handler.init)
-          handler.init();
-        asCustomElement(value, o);
-      }
+  (value, {m, l, o}) => {
+    if (!m.has(value)) {
+      const handler = create(o, {
+        element: {enumerable: true, value}
+      });
+      m.set(value, 0);
+      wicked.set(value, handler);
+      for (let i = 0, {length} = l; i < length; i++)
+        value.addEventListener(l[i].t, handler, l[i].o);
+      if (handler.init)
+        handler.init();
+      asCustomElement(value, o);
     }
-    setupList(value.querySelectorAll(query), parsed);
   }
 );
 
