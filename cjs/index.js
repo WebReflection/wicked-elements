@@ -64,7 +64,7 @@ const define = (selector, definition) => {
   }
   query.push(selector);
   config.push({m: new WeakMap, l: listeners, o: definition});
-  setupList(document.querySelectorAll(selector), new Set);
+  setupList(document.querySelectorAll(selector), new Set, true);
   whenDefined(selector);
   if (!lazy.has(selector))
     defined[selector]._();

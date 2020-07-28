@@ -48,13 +48,13 @@ self.wickedElements = (function (exports) {
   };
 
   var mainLoop = function mainLoop(records) {
-    for (var c = new Set(), d = new Set(), i = 0, length = records.length; i < length; i++) {
+    for (var i = 0, length = records.length; i < length; i++) {
       var _records$i2 = records[i],
           addedNodes = _records$i2.addedNodes,
           removedNodes = _records$i2.removedNodes;
-      invoke$1(addedNodes, 'c', c, false);
+      invoke$1(addedNodes, 'c', new Set(), false);
       attributeChanged(sao.takeRecords());
-      invoke$1(removedNodes, 'd', d, false);
+      invoke$1(removedNodes, 'd', new Set(), false);
     }
   };
 
@@ -133,7 +133,7 @@ self.wickedElements = (function (exports) {
     };
 
     var upgrade = function upgrade(node) {
-      upgradeNode(node, new Set());
+      upgradeNode(node, new Set(), true);
     };
 
     var whenDefined = function whenDefined(selector) {
@@ -153,7 +153,7 @@ self.wickedElements = (function (exports) {
     }; // util
 
 
-    var setupList = function setupList(nodes, parsed) {
+    var setupList = function setupList(nodes, parsed, noCheck) {
       var i = 0,
           length = nodes.length,
           node;
@@ -161,14 +161,14 @@ self.wickedElements = (function (exports) {
       while (i < length) {
         node = nodes[i++];
 
-        if (!parsed.has(node) && 'querySelectorAll' in node) {
+        if (!parsed.has(node) && (noCheck || 'querySelectorAll' in node)) {
           parsed.add(node);
-          upgradeNode(node, parsed);
+          upgradeNode(node, parsed, true);
         }
       }
     };
 
-    var upgradeNode = function upgradeNode(node, parsed) {
+    var upgradeNode = function upgradeNode(node, parsed, noCheck) {
       var i = 0,
           length = query.length;
 
@@ -177,12 +177,12 @@ self.wickedElements = (function (exports) {
         i++;
       }
 
-      if (length) setupList(node.querySelectorAll(query), parsed);
+      if (length) setupList(node.querySelectorAll(query), parsed, noCheck);
     };
 
     set.add(function (records) {
       for (var parsed = new Set(), i = 0, length = records.length; i < length; i++) {
-        setupList(records[i].addedNodes, parsed);
+        setupList(records[i].addedNodes, parsed, false);
       }
     });
     return {
@@ -275,7 +275,7 @@ self.wickedElements = (function (exports) {
       l: listeners,
       o: definition
     });
-    setupList(document.querySelectorAll(selector), new Set());
+    setupList(document.querySelectorAll(selector), new Set(), true);
     whenDefined(selector);
     if (!lazy.has(selector)) defined[selector]._();
   };
