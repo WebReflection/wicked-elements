@@ -35,27 +35,26 @@ self.wickedElements = (function (exports) {
     }
   };
 
-  var invoke$1 = function invoke(nodes, key, nested) {
+  var invoke$1 = function invoke(nodes, key, parsed) {
     for (var i = 0, length = nodes.length; i < length; i++) {
       var target = nodes[i];
 
-      if (nested) {
-        if ('querySelectorAll' in target) {
-          if (wm.has(target)) wm.get(target)[key].forEach(call, target);
-          invoke(target.querySelectorAll('*'), key, !nested);
-        }
-      } else if (wm.has(target)) wm.get(target)[key].forEach(call, target);
+      if (!parsed.has(target) && 'querySelectorAll' in target) {
+        parsed.add(target);
+        if (wm.has(target)) wm.get(target)[key].forEach(call, target);
+        invoke(target.querySelectorAll('*'), key, parsed);
+      }
     }
   };
 
   var mainLoop = function mainLoop(records) {
-    for (var i = 0, length = records.length; i < length; i++) {
+    for (var parsed = new Set(), i = 0, length = records.length; i < length; i++) {
       var _records$i2 = records[i],
           addedNodes = _records$i2.addedNodes,
           removedNodes = _records$i2.removedNodes;
-      invoke$1(addedNodes, 'c', true);
+      invoke$1(addedNodes, 'c', parsed);
       attributeChanged(sao.takeRecords());
-      invoke$1(removedNodes, 'd', true);
+      invoke$1(removedNodes, 'd', parsed);
     }
   };
 
