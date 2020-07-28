@@ -37,10 +37,6 @@
     "default": "./cjs/index.js"
   },
   "unpkg": "min.js",
-  "dependencies": {
-    "@webreflection/elements-utils": "^0.2.8",
-    "as-custom-element": "^0.2.7"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/WebReflection/wicked-elements.git"
@@ -48,5 +44,8 @@
   "bugs": {
     "url": "https://github.com/WebReflection/wicked-elements/issues"
   },
-  "homepage": "https://github.com/WebReflection/wicked-elements#readme"
+  "homepage": "https://github.com/WebReflection/wicked-elements#readme",
+  "dependencies": {
+    "@webreflection/elements-utils": "^1.0.2"
+  }
 }
