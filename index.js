@@ -209,14 +209,15 @@ self.wickedElements = (function (exports) {
         value: value
       }
     });
+    wm.set(value, 0);
+    wicked.set(value, handler);
 
     for (var i = 0, length = listeners.length; i < length; i++) {
       value.addEventListener(listeners[i].t, handler, listeners[i].o);
     }
 
     if (handler.init) handler.init();
-    wicked.set(value, handler);
-    wm.set(asCustomElement(value, definition), 0);
+    asCustomElement(value, definition);
   };
 
   var define = function define(selector, definition) {
