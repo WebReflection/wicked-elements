@@ -13,7 +13,7 @@ const {
   $: setupList,
   _: asCustomElement
 } = utils(
-  query, config, defined,
+  document, query, config, defined,
   (value, {m, l, o}) => {
     if (!m.has(value)) {
       const handler = create(o, {

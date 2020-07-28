@@ -1,6 +1,6 @@
 {
   "name": "wicked-elements",
-  "version": "3.0.13",
+  "version": "3.0.15",
   "description": "Components for the DOM as you've never seen before",
   "main": "./cjs/index.js",
   "scripts": {
@@ -46,6 +46,6 @@
   },
   "homepage": "https://github.com/WebReflection/wicked-elements#readme",
   "dependencies": {
-    "@webreflection/elements-utils": "^1.0.2"
+    "@webreflection/elements-utils": "^1.0.4"
   }
 }

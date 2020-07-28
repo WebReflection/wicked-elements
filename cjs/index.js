@@ -1,5 +1,4 @@
 'use strict';
-const asCustomElement = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('as-custom-element'));
 const utils = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('@webreflection/elements-utils'));
 
 const {create, keys} = Object;
@@ -12,9 +11,10 @@ const wicked = new WeakMap;
 
 const {
   get, upgrade, whenDefined,
-  $: setupList
+  $: setupList,
+  _: asCustomElement
 } = utils(
-  query, config, defined,
+  document, query, config, defined,
   (value, {m, l, o}) => {
     if (!m.has(value)) {
       const handler = create(o, {
