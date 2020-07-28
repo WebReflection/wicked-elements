@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="https://unpkg.com/wicked-elements"></script>
-  <script>
-  // import {define} from '../esm/index.js'; const wickedElements = {define};
-  addEventListener('load', function () {
+  <!--script src="https://unpkg.com/wicked-elements"></script-->
+  <script type="module">
+  import {define} from '../esm/index.js'; const wickedElements = {define};
+  addEventListener('DOMContentLoaded', function () {
     //*
     wickedElements.define('tr', {
       connected: function () {

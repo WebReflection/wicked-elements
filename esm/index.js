@@ -14,34 +14,28 @@ const {
   _: matches, $: setupList
 } = utils(
   query, config, defined,
-  (element, i, nested) => {
-    if (nested) {
-      if (matches(element, query[i]))
-        init(element, config[i]);
-      setupList(element.querySelectorAll(query), !nested);
+  (value, i, parsed) => {
+    if (matches(value, query[i])) {
+      const {m, l, o} = config[i];
+      if (!m.has(value)) {
+        const handler = create(o, {
+          element: {enumerable: true, value}
+        });
+        m.set(value, 0);
+        wicked.set(value, handler);
+        for (let i = 0, {length} = l; i < length; i++)
+          value.addEventListener(l[i].t, handler, l[i].o);
+        if (handler.init)
+          handler.init();
+        asCustomElement(value, o);
+      }
     }
-    else
-      init(element, config[i]);
+    setupList(value.querySelectorAll(query), parsed);
   }
 );
 
 const delegate = method => function () {
   method.apply(wicked.get(this), arguments);
-};
-
-const init = (value, {m, l, o}) => {
-  if (!m.has(value)) {
-    const handler = create(o, {
-      element: {enumerable: true, value}
-    });
-    m.set(value, 0);
-    wicked.set(value, handler);
-    for (let i = 0, {length} = l; i < length; i++)
-      value.addEventListener(l[i].t, handler, l[i].o);
-    if (handler.init)
-      handler.init();
-    asCustomElement(value, o);
-  }
 };
 
 export const define = (selector, definition) => {
@@ -73,7 +67,7 @@ export const define = (selector, definition) => {
   }
   query.push(selector);
   config.push({m: new WeakMap, l: listeners, o: definition});
-  setupList(document.querySelectorAll(selector), true);
+  setupList(document.querySelectorAll(selector), new Set);
   whenDefined(selector);
   if (!lazy.has(selector))
     defined[selector]._();

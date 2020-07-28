@@ -38,7 +38,7 @@
   },
   "unpkg": "min.js",
   "dependencies": {
-    "@webreflection/elements-utils": "^0.2.3",
+    "@webreflection/elements-utils": "^0.2.4",
     "as-custom-element": "^0.2.3"
   },
   "repository": {
