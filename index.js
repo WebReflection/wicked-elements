@@ -35,14 +35,14 @@ self.wickedElements = (function (exports) {
     }
   };
 
-  var invoke$1 = function invoke(nodes, key, parsed) {
+  var invoke$1 = function invoke(nodes, key, parsed, noCheck) {
     for (var i = 0, length = nodes.length; i < length; i++) {
       var target = nodes[i];
 
-      if (!parsed.has(target) && 'querySelectorAll' in target) {
+      if (!parsed.has(target) && (noCheck || 'querySelectorAll' in target)) {
         parsed.add(target);
         if (wm.has(target)) wm.get(target)[key].forEach(call, target);
-        invoke(target.querySelectorAll('*'), key, parsed);
+        invoke(target.querySelectorAll('*'), key, parsed, true);
       }
     }
   };
@@ -52,9 +52,9 @@ self.wickedElements = (function (exports) {
       var _records$i2 = records[i],
           addedNodes = _records$i2.addedNodes,
           removedNodes = _records$i2.removedNodes;
-      invoke$1(addedNodes, 'c', c);
+      invoke$1(addedNodes, 'c', c, false);
       attributeChanged(sao.takeRecords());
-      invoke$1(removedNodes, 'd', d);
+      invoke$1(removedNodes, 'd', d, false);
     }
   };
 
