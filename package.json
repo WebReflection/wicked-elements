@@ -46,6 +46,6 @@
   },
   "homepage": "https://github.com/WebReflection/wicked-elements#readme",
   "dependencies": {
-    "@webreflection/elements-utils": "^1.0.2"
+    "@webreflection/elements-utils": "^1.0.4"
   }
 }
