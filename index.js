@@ -4,6 +4,7 @@ self.wickedElements = (function (exports) {
   var asCustomElement = (function (root, upgrade) {
     var wm = new WeakMap();
     var ao = new WeakMap();
+    var filter = [].filter;
 
     var attributeChanged = function attributeChanged(records, mo) {
       for (var i = 0, length = records.length; i < length; i++) {
@@ -16,16 +17,8 @@ self.wickedElements = (function (exports) {
       }
     };
 
-    var invoke = function invoke(nodes, key, parsed, isQSA) {
-      for (var i = 0, length = nodes.length; i < length; i++) {
-        var target = nodes[i];
-
-        if (!parsed.has(target) && (isQSA || 'querySelectorAll' in target)) {
-          parsed.add(target);
-          if (wm.has(target)) wm.get(target)[key].forEach(call, target);else if (key === 'c') upgrade(target);
-          invoke(target.querySelectorAll('*'), key, parsed, true);
-        }
-      }
+    var elements = function elements(target) {
+      return 'querySelectorAll' in target;
     };
 
     var mainLoop = function mainLoop(records) {
@@ -33,8 +26,20 @@ self.wickedElements = (function (exports) {
         var _records$i2 = records[i],
             addedNodes = _records$i2.addedNodes,
             removedNodes = _records$i2.removedNodes;
-        invoke(addedNodes, 'c', new Set(), false);
-        invoke(removedNodes, 'd', new Set(), false);
+        parse(filter.call(addedNodes, elements), 'c', new Set());
+        parse(filter.call(removedNodes, elements), 'd', new Set());
+      }
+    };
+
+    var parse = function parse(nodes, key, parsed) {
+      for (var i = 0, length = nodes.length; i < length; i++) {
+        var target = nodes[i];
+
+        if (!parsed.has(target)) {
+          parsed.add(target);
+          if (wm.has(target)) wm.get(target)[key].forEach(call, target);else if (key === 'c') upgrade(target);
+          parse(target.querySelectorAll('*'), key, parsed);
+        }
       }
     };
 
@@ -166,7 +171,6 @@ self.wickedElements = (function (exports) {
 
   var create = Object.create,
       keys = Object.keys;
-  var empty = [];
   var config = [];
   var query = [];
   var defined = {};
@@ -188,10 +192,7 @@ self.wickedElements = (function (exports) {
       });
       m.set(value, 0);
       if (!wicked.has(value)) wicked.set(value, []);
-      wicked.get(value).push({
-        h: handler,
-        o: handler.observedAttributes || empty
-      });
+      wicked.get(value).push(handler);
 
       for (var i = 0, length = l.length; i < length; i++) {
         value.addEventListener(l[i].t, handler, l[i].o);
@@ -207,16 +208,10 @@ self.wickedElements = (function (exports) {
       setupList = _utils.$,
       asCustomElement$1 = _utils._;
 
-  var delegate = function delegate(key, method, isAC) {
+  var delegate = function delegate(key, method, notAC) {
     return function (name) {
-      for (var all = wicked.get(this), i = 0, length = all.length; i < length; i++) {
-        var _all$i = all[i],
-            h = _all$i.h,
-            o = _all$i.o;
-
-        if (method === h[key] && (!isAC || -1 < o.indexOf(name))) {
-          method.apply(h, arguments);
-        }
+      for (var h = wicked.get(this), i = 0, length = h.length; i < length; i++) {
+        if (method === h[i][key] && (notAC || -1 < (h[i].observedAttributes || []).indexOf(name))) method.apply(h[i], arguments);
       }
     };
   };
@@ -230,7 +225,7 @@ self.wickedElements = (function (exports) {
       var key = k[i];
 
       if (/^(?:connected|disconnected|attributeChanged)$/.test(key)) {
-        if (!callbacks.has(definition[key])) callbacks.set(definition[key], delegate(key, definition[key], key[0] === 'a'));
+        if (!callbacks.has(definition[key])) callbacks.set(definition[key], delegate(key, definition[key], key[0] !== 'a'));
         definition[key + 'Callback'] = callbacks.get(definition[key]);
       } else if (/^on/.test(key) && !/Options$/.test(key)) {
         var options = definition[key + 'Options'] || false;
