@@ -5,12 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!--script src="https://unpkg.com/wicked-elements"></script-->
   <script type="module">
-  import {define} from '../esm/index.js'; const wickedElements = {define};
+  import {define, downgrade} from '../esm/index.js'; const wickedElements = {define};
   addEventListener('DOMContentLoaded', function () {
     //*
     wickedElements.define('tr', {
+      init() {
+        this.counter = 0;
+      },
       connected: function () {
         this.element.classList.add('live');
+        if (1 === this.counter++)
+          downgrade(this);
       },
       disconnected: function () {
         this.element.classList.remove('live');
@@ -37,8 +42,8 @@
       document.body.removeChild(table);
       setTimeout(function () {
         document.body.appendChild(table);
-      }, 100);
-    }, 100);
+      }, 300);
+    }, 300);
   }, {once: true});
   </script>
 </head>

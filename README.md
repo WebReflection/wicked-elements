@@ -2,7 +2,7 @@
 
 <sup>**Social Media Photo by [Jonatan Pie](https://unsplash.com/@r3dmax) on [Unsplash](https://unsplash.com/)**</sup>
 
-An _all inclusive_ ~1.3K library to handle any element as if it was a Custom Element.
+An _all inclusive_ ~1.4K library to handle any element as if it was a Custom Element.
 
 ```js
 import {define, defineAsync, get, upgrade, whenDefined} from 'wicked-elements';
@@ -47,7 +47,14 @@ wickedElements.define(
 
     // Custom Elements like callbacks, without the redundant `Callback` suffix
     connected() {},
-    disconnected() {},
+    disconnected() {
+      // if you'd like to remove the handler from the associated element
+      // you can release it and never be notified again about anything
+      //  * all listeners removed
+      //  * all lifecycle events will stop working
+      // Please note: there is no coming back from this point
+      this.release();
+    },
 
     // invokes `attributeChanged` if any of these attributes is changed, set, removed
     observedAttributes: ['data-thing', 'value'],

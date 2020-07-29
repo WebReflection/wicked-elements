@@ -122,21 +122,25 @@ self.wickedElements = (function (exports) {
   var config = {};
   var defined = {};
 
-  var attributeChangedCallback = function attributeChangedCallback(records, o) {
-    for (var h = attributes.get(o), i = 0, length = records.length; i < length; i++) {
+  var attributeChangedCallback = function attributeChangedCallback(records, mo) {
+    var handler = attributes.get(mo);
+    if ('element' in handler) for (var i = 0, length = records.length; i < length; i++) {
       var _records$i = records[i],
           target = _records$i.target,
           attributeName = _records$i.attributeName,
           oldValue = _records$i.oldValue;
       var newValue = target.getAttribute(attributeName);
-      h.attributeChanged(attributeName, oldValue, newValue);
+      handler.attributeChanged(attributeName, oldValue, newValue);
+    } else {
+      mo.disconnect();
+      attributes["delete"](mo);
     }
   };
 
   var set = function set(value, m, l, o) {
     var handler = create(o, {
       element: {
-        enumerable: true,
+        configurable: true,
         value: value
       }
     });
@@ -174,7 +178,7 @@ self.wickedElements = (function (exports) {
           o = _config$selector.o;
       var handler = m.get(element) || set(element, m, l, o);
       var method = connected ? 'connected' : 'disconnected';
-      if (method in handler) handler[method]();
+      if (method in handler && 'element' in handler) handler[method]();
     }
   }),
       drop = _QSAO.drop,
@@ -268,9 +272,13 @@ self.wickedElements = (function (exports) {
 
     return defined[selector].$;
   };
+  var downgrade = function downgrade(handler) {
+    delete handler.element;
+  };
 
   exports.define = define;
   exports.defineAsync = defineAsync;
+  exports.downgrade = downgrade;
   exports.get = get;
   exports.upgrade = upgrade;
   exports.whenDefined = whenDefined;

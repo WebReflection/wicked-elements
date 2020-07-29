@@ -11,16 +11,22 @@ const query = [];
 const config = {};
 const defined = {};
 
-const attributeChangedCallback = (records, o) => {
-  for (let h = attributes.get(o), i = 0, {length} = records; i < length; i++) {
-    const {target, attributeName, oldValue} = records[i];
-    const newValue = target.getAttribute(attributeName);
-    h.attributeChanged(attributeName, oldValue, newValue);
+const attributeChangedCallback = (records, mo) => {
+  const handler = attributes.get(mo);
+  if ('element' in handler)
+    for (let i = 0, {length} = records; i < length; i++) {
+      const {target, attributeName, oldValue} = records[i];
+      const newValue = target.getAttribute(attributeName);
+      handler.attributeChanged(attributeName, oldValue, newValue);
+    }
+  else {
+    mo.disconnect();
+    attributes.delete(mo);
   }
 };
 
 const set = (value, m, l, o) => {
-  const handler = create(o, {element: {enumerable: true, value}});
+  const handler = create(o, {element: {configurable: true, value}});
   for (let i = 0, {length} = l; i < length; i++)
     value.addEventListener(l[i].t, handler, l[i].o);
   m.set(value, handler);
@@ -53,7 +59,7 @@ const {drop, flush, parse} = QSAO({
     const {m, l, o} = config[selector];
     const handler = m.get(element) || set(element, m, l, o);
     const method = connected ? 'connected' : 'disconnected';
-    if (method in handler)
+    if (method in handler && 'element' in handler)
       handler[method]();
   }
 });
@@ -129,3 +135,8 @@ const whenDefined = selector => {
   return defined[selector].$;
 };
 exports.whenDefined = whenDefined;
+
+const downgrade = handler => {
+  delete handler.element;
+};
+exports.downgrade = downgrade;

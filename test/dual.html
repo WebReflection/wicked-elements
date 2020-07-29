@@ -4,9 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script type="module">
-  import {define} from '../esm/index.js';
+  import {define, downgrade} from '../esm/index.js';
   function disconnected() {
     console.log('disconnected', this.__proto__);
+    downgrade(this);
   }
   define('body > div', {
     observedAttributes: ['first'],
@@ -25,15 +26,21 @@
     },
     disconnected
   });
-  setTimeout(() => {
-    document.body.firstElementChild.setAttribute('first', 123);
+  setTimeout(div => {
+    div.setAttribute('first', 123);
     setTimeout(() => {
-      document.body.firstElementChild.setAttribute('second', 123);
+      div.setAttribute('second', 123);
       setTimeout(() => {
-        document.body.textContent = 'done';
-      }, 500);
-    }, 500);
-  }, 500);
+        document.body.textContent = '';
+        setTimeout(() => {
+          document.body.appendChild(div);
+          setTimeout(() => {
+            document.body.textContent = 'OK';
+          }, 250);
+        }, 250);
+      }, 250);
+    }, 250);
+  }, 250, document.body.firstElementChild);
   </script>
 </head>
 <body><div></div></body>
