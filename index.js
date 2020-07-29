@@ -1,7 +1,7 @@
 self.wickedElements = (function (exports) {
   'use strict';
 
-  var asCE = (function (selectors, root) {
+  var asCustomElement = (function (root, upgrade) {
     var wm = new WeakMap();
 
     var attributeChanged = function attributeChanged(records) {
@@ -21,14 +21,14 @@ self.wickedElements = (function (exports) {
       }
     };
 
-    var invoke = function invoke(nodes, key, parsed, noCheck) {
+    var invoke = function invoke(nodes, key, parsed, isQSA) {
       for (var i = 0, length = nodes.length; i < length; i++) {
         var target = nodes[i];
 
-        if (!parsed.has(target) && (noCheck || 'querySelectorAll' in target)) {
+        if (!parsed.has(target) && (isQSA || 'querySelectorAll' in target)) {
           parsed.add(target);
-          if (wm.has(target)) wm.get(target)[key].forEach(call, target);
-          if (selectors.length) invoke(target.querySelectorAll(selectors), key, parsed, true);
+          if (wm.has(target)) wm.get(target)[key].forEach(call, target);else if (key === 'c') upgrade(target);
+          invoke(target.querySelectorAll('*'), key, parsed, true);
         }
       }
     };
@@ -122,7 +122,7 @@ self.wickedElements = (function (exports) {
     };
 
     var upgrade = function upgrade(node) {
-      upgradeNode(node, new Set(), true);
+      upgradeNode(node, new Set());
     };
 
     var whenDefined = function whenDefined(selector) {
@@ -142,38 +142,33 @@ self.wickedElements = (function (exports) {
     }; // util
 
 
-    var setupList = function setupList(nodes, parsed, noCheck) {
-      for (var node, i = 0, length = nodes.length; i < length; i++) {
-        node = nodes[i];
-
-        if (!parsed.has(node) && (noCheck || 'querySelectorAll' in node)) {
-          parsed.add(node);
-          upgradeNode(node, parsed, true);
+    var setupList = function setupList(nodes, parsed) {
+      for (var i = 0, length = nodes.length; i < length; i++) {
+        if (!parsed.has(nodes[i])) {
+          parsed.add(nodes[i]);
+          upgradeNode(nodes[i], parsed);
         }
       }
     };
 
-    var upgradeAll = function upgradeAll(node, parsed, noCheck) {
-      if (query.length) setupList(node.querySelectorAll(query), parsed, noCheck);
+    var upgradeAll = function upgradeAll(node, parsed) {
+      if (query.length) setupList(node.querySelectorAll(query), parsed);
     };
 
-    var upgradeNode = function upgradeNode(node, parsed, noCheck) {
+    var upgradeNode = function upgradeNode(node, parsed) {
       for (var i = 0, length = query.length; i < length; i++) {
         if ((node.matches || node.webkitMatchesSelector || node.msMatchesSelector).call(node, query[i])) setup(node, config[i]);
       }
 
-      upgradeAll(node, parsed, noCheck);
+      if (parsed) upgradeAll(node, parsed);
     };
 
-    addEventListener('DOMContentLoaded', upgradeAll.bind(null, root, new Set(), true), {
-      once: 1
-    });
     return {
       get: get,
       upgrade: upgrade,
       whenDefined: whenDefined,
       $: setupList,
-      _: asCE(query, root)
+      _: asCustomElement(root, upgradeNode)
     };
   });
 
@@ -198,25 +193,28 @@ self.wickedElements = (function (exports) {
         }
       });
       m.set(value, 0);
-      wicked.set(value, handler);
+      if (!wicked.has(value)) wicked.set(value, []);
+      wicked.get(value).push(handler);
 
       for (var i = 0, length = l.length; i < length; i++) {
         value.addEventListener(l[i].t, handler, l[i].o);
       }
 
       if (handler.init) handler.init();
-      asCustomElement(value, o);
+      asCustomElement$1(value, o);
     }
   }),
       get = _utils.get,
       upgrade = _utils.upgrade,
       whenDefined = _utils.whenDefined,
       setupList = _utils.$,
-      asCustomElement = _utils._;
+      asCustomElement$1 = _utils._;
 
-  var delegate = function delegate(method) {
+  var delegate = function delegate(key) {
     return function () {
-      method.apply(wicked.get(this), arguments);
+      for (var h = wicked.get(this), i = 0, length = h.length; i < length; i++) {
+        if (key in h[i]) h[i][key].apply(h[i], arguments);
+      }
     };
   };
 
@@ -227,7 +225,7 @@ self.wickedElements = (function (exports) {
 
     for (var k = keys(definition), i = 0, length = k.length; i < length; i++) {
       var key = k[i];
-      if (/^(?:connected|disconnected|attributeChanged)$/.test(key)) definition[key + 'Callback'] = delegate(definition[key]);else if (/^on/.test(key) && !/Options$/.test(key)) {
+      if (/^(?:connected|disconnected|attributeChanged)$/.test(key)) definition[key + 'Callback'] = delegate(key);else if (/^on/.test(key) && !/Options$/.test(key)) {
         var options = definition[key + 'Options'] || false;
         var lower = key.toLowerCase();
         var type = lower.slice(2);
@@ -260,7 +258,7 @@ self.wickedElements = (function (exports) {
       l: listeners,
       o: definition
     });
-    setupList(document.querySelectorAll(selector), new Set(), true);
+    setupList(document.querySelectorAll(selector), new Set());
     whenDefined(selector);
     if (!lazy.has(selector)) defined[selector]._();
   };

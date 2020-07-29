@@ -10,8 +10,7 @@ const wicked = new WeakMap;
 
 const {
   get, upgrade, whenDefined,
-  $: setupList,
-  _: asCustomElement
+  $: setupList, _: asCustomElement
 } = utils(
   document, query, config, defined,
   (value, {m, l, o}) => {
@@ -20,7 +19,9 @@ const {
         element: {enumerable: true, value}
       });
       m.set(value, 0);
-      wicked.set(value, handler);
+      if (!wicked.has(value))
+        wicked.set(value, []);
+      wicked.get(value).push(handler);
       for (let i = 0, {length} = l; i < length; i++)
         value.addEventListener(l[i].t, handler, l[i].o);
       if (handler.init)
@@ -30,8 +31,11 @@ const {
   }
 );
 
-const delegate = method => function () {
-  method.apply(wicked.get(this), arguments);
+const delegate = key => function () {
+  for (let m, h = wicked.get(this), i = 0, {length} = h; i < length; i++) {
+    if (key in h[i])
+      h[i][key].apply(h[i], arguments);
+  }
 };
 
 export const define = (selector, definition) => {
@@ -42,7 +46,7 @@ export const define = (selector, definition) => {
   for (let k = keys(definition), i = 0, {length} = k; i < length; i++) {
     const key = k[i];
     if (/^(?:connected|disconnected|attributeChanged)$/.test(key))
-      definition[key + 'Callback'] = delegate(definition[key]);
+      definition[key + 'Callback'] = delegate(key);
     else if (/^on/.test(key) && !/Options$/.test(key)) {
       const options = definition[key + 'Options'] || false;
       const lower = key.toLowerCase();
@@ -63,7 +67,7 @@ export const define = (selector, definition) => {
   }
   query.push(selector);
   config.push({m: new WeakMap, l: listeners, o: definition});
-  setupList(document.querySelectorAll(selector), new Set, true);
+  setupList(document.querySelectorAll(selector), new Set);
   whenDefined(selector);
   if (!lazy.has(selector))
     defined[selector]._();
