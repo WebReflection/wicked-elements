@@ -33,7 +33,7 @@ const {
 );
 
 const delegate = key => function () {
-  for (let m, h = wicked.get(this), i = 0, {length} = h; i < length; i++) {
+  for (let h = wicked.get(this), i = 0, {length} = h; i < length; i++) {
     if (key in h[i])
       h[i][key].apply(h[i], arguments);
   }
