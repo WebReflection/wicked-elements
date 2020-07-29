@@ -3,11 +3,13 @@ const utils = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* ist
 
 const {create, keys} = Object;
 
+const empty = [];
 const config = [];
 const query = [];
 const defined = {};
 const lazy = new Set;
 const wicked = new WeakMap;
+const callbacks = new WeakMap;
 
 const {
   get, upgrade, whenDefined,
@@ -22,7 +24,10 @@ const {
       m.set(value, 0);
       if (!wicked.has(value))
         wicked.set(value, []);
-      wicked.get(value).push(handler);
+      wicked.get(value).push({
+        h: handler,
+        o: handler.observedAttributes || empty
+      });
       for (let i = 0, {length} = l; i < length; i++)
         value.addEventListener(l[i].t, handler, l[i].o);
       if (handler.init)
@@ -32,10 +37,12 @@ const {
   }
 );
 
-const delegate = key => function () {
-  for (let h = wicked.get(this), i = 0, {length} = h; i < length; i++) {
-    if (key in h[i])
-      h[i][key].apply(h[i], arguments);
+const delegate = (key, method, isAC) => function (name) {
+  for (let all = wicked.get(this), i = 0, {length} = all; i < length; i++) {
+    const {h, o} = all[i];
+    if (method === h[key] && (!isAC || -1 < o.indexOf(name))) {
+      method.apply(h, arguments);
+    }
   }
 };
 
@@ -46,8 +53,13 @@ const define = (selector, definition) => {
   const retype = create(null);
   for (let k = keys(definition), i = 0, {length} = k; i < length; i++) {
     const key = k[i];
-    if (/^(?:connected|disconnected|attributeChanged)$/.test(key))
-      definition[key + 'Callback'] = delegate(key);
+    if (/^(?:connected|disconnected|attributeChanged)$/.test(key)) {
+      if (!callbacks.has(definition[key]))
+        callbacks.set(definition[key], delegate(
+          key, definition[key], key[0] === 'a'
+        ));
+      definition[key + 'Callback'] = callbacks.get(definition[key]);
+    }
     else if (/^on/.test(key) && !/Options$/.test(key)) {
       const options = definition[key + 'Options'] || false;
       const lower = key.toLowerCase();

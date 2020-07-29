@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script type="module">
+  import {define} from '../esm/index.js';
+  function disconnected() {
+    console.log('disconnected', this.__proto__);
+  }
+  define('body > div', {
+    observedAttributes: ['first'],
+    attributeChanged() {
+      console.log('first', arguments);
+    },
+    connected() {
+      console.log('first', 'connected');
+    },
+    disconnected
+  });
+  define('html > body > div', {
+    observedAttributes: ['first', 'second'],
+    attributeChanged() {
+      console.log('second', arguments);
+    },
+    disconnected
+  });
+  setTimeout(() => {
+    document.body.firstElementChild.setAttribute('first', 123);
+    setTimeout(() => {
+      document.body.firstElementChild.setAttribute('second', 123);
+      setTimeout(() => {
+        document.body.textContent = 'done';
+      }, 500);
+    }, 500);
+  }, 500);
+  </script>
+</head>
+<body><div></div></body>
+</html>

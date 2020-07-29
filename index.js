@@ -3,21 +3,16 @@ self.wickedElements = (function (exports) {
 
   var asCustomElement = (function (root, upgrade) {
     var wm = new WeakMap();
+    var ao = new WeakMap();
 
-    var attributeChanged = function attributeChanged(records) {
-      var _loop = function _loop(i, length) {
+    var attributeChanged = function attributeChanged(records, mo) {
+      for (var i = 0, length = records.length; i < length; i++) {
         var _records$i = records[i],
             target = _records$i.target,
             attributeName = _records$i.attributeName,
             oldValue = _records$i.oldValue;
         var newValue = target.getAttribute(attributeName);
-        wm.get(target).a[attributeName].forEach(function (attributeChangedCallback) {
-          attributeChangedCallback.call(target, attributeName, oldValue, newValue);
-        });
-      };
-
-      for (var i = 0, length = records.length; i < length; i++) {
-        _loop(i);
+        ao.get(mo).call(target, attributeName, oldValue, newValue);
       }
     };
 
@@ -39,14 +34,12 @@ self.wickedElements = (function (exports) {
             addedNodes = _records$i2.addedNodes,
             removedNodes = _records$i2.removedNodes;
         invoke(addedNodes, 'c', new Set(), false);
-        attributeChanged(sao.takeRecords());
         invoke(removedNodes, 'd', new Set(), false);
       }
     };
 
     var set = function set(target) {
       var sets = {
-        a: {},
         c: new Set(),
         d: new Set()
       };
@@ -54,7 +47,6 @@ self.wickedElements = (function (exports) {
       return sets;
     };
 
-    var sao = new MutationObserver(attributeChanged);
     var sdo = new MutationObserver(mainLoop);
     sdo.observe(root, {
       childList: true,
@@ -68,20 +60,20 @@ self.wickedElements = (function (exports) {
       mainLoop(sdo.takeRecords());
 
       var _ref2 = wm.get(target) || set(target),
-          a = _ref2.a,
           c = _ref2.c,
           d = _ref2.d;
 
       if (observedAttributes) {
-        sao.observe(target, {
+        var mo = new MutationObserver(attributeChanged);
+        mo.observe(target, {
           attributes: true,
           attributeOldValue: true,
-          attributeFilter: observedAttributes
+          attributeFilter: observedAttributes.map(function (attributeName) {
+            if (target.hasAttribute(attributeName)) attributeChangedCallback.call(target, attributeName, null, target.getAttribute(attributeName));
+            return attributeName;
+          })
         });
-        observedAttributes.forEach(function (attributeName) {
-          (a[attributeName] || (a[attributeName] = new Set())).add(attributeChangedCallback);
-          if (target.hasAttribute(attributeName)) attributeChangedCallback.call(target, attributeName, null, target.getAttribute(attributeName));
-        });
+        ao.set(mo, attributeChangedCallback);
       }
 
       if (disconnectedCallback) d.add(disconnectedCallback);
@@ -174,11 +166,13 @@ self.wickedElements = (function (exports) {
 
   var create = Object.create,
       keys = Object.keys;
+  var empty = [];
   var config = [];
   var query = [];
   var defined = {};
   var lazy = new Set();
   var wicked = new WeakMap();
+  var callbacks = new WeakMap();
 
   var _utils = utils(document, query, config, defined, function (value, _ref) {
     var m = _ref.m,
@@ -194,7 +188,10 @@ self.wickedElements = (function (exports) {
       });
       m.set(value, 0);
       if (!wicked.has(value)) wicked.set(value, []);
-      wicked.get(value).push(handler);
+      wicked.get(value).push({
+        h: handler,
+        o: handler.observedAttributes || empty
+      });
 
       for (var i = 0, length = l.length; i < length; i++) {
         value.addEventListener(l[i].t, handler, l[i].o);
@@ -210,10 +207,16 @@ self.wickedElements = (function (exports) {
       setupList = _utils.$,
       asCustomElement$1 = _utils._;
 
-  var delegate = function delegate(key) {
-    return function () {
-      for (var h = wicked.get(this), i = 0, length = h.length; i < length; i++) {
-        if (key in h[i]) h[i][key].apply(h[i], arguments);
+  var delegate = function delegate(key, method, isAC) {
+    return function (name) {
+      for (var all = wicked.get(this), i = 0, length = all.length; i < length; i++) {
+        var _all$i = all[i],
+            h = _all$i.h,
+            o = _all$i.o;
+
+        if (method === h[key] && (!isAC || -1 < o.indexOf(name))) {
+          method.apply(h, arguments);
+        }
       }
     };
   };
@@ -225,7 +228,11 @@ self.wickedElements = (function (exports) {
 
     for (var k = keys(definition), i = 0, length = k.length; i < length; i++) {
       var key = k[i];
-      if (/^(?:connected|disconnected|attributeChanged)$/.test(key)) definition[key + 'Callback'] = delegate(key);else if (/^on/.test(key) && !/Options$/.test(key)) {
+
+      if (/^(?:connected|disconnected|attributeChanged)$/.test(key)) {
+        if (!callbacks.has(definition[key])) callbacks.set(definition[key], delegate(key, definition[key], key[0] === 'a'));
+        definition[key + 'Callback'] = callbacks.get(definition[key]);
+      } else if (/^on/.test(key) && !/Options$/.test(key)) {
         var options = definition[key + 'Options'] || false;
         var lower = key.toLowerCase();
         var type = lower.slice(2);
