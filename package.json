@@ -21,14 +21,14 @@
   "author": "Andrea Giammarchi",
   "license": "ISC",
   "devDependencies": {
-    "@babel/core": "^7.10.5",
-    "@babel/preset-env": "^7.10.4",
+    "@babel/core": "^7.11.0",
+    "@babel/preset-env": "^7.11.0",
     "@rollup/plugin-babel": "^5.1.0",
     "@rollup/plugin-node-resolve": "^8.4.0",
     "ascjs": "^4.0.1",
     "rollup": "^2.23.0",
     "rollup-plugin-terser": "^6.1.0",
-    "terser": "^4.8.0"
+    "terser": "^5.0.0"
   },
   "module": "./esm/index.js",
   "type": "module",
@@ -46,6 +46,7 @@
   },
   "homepage": "https://github.com/WebReflection/wicked-elements#readme",
   "dependencies": {
-    "@webreflection/elements-utils": "^1.0.13"
+    "@webreflection/lie": "^0.1.0",
+    "qsa-observer": "^1.1.1"
   }
 }

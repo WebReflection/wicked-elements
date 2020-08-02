@@ -1,63 +1,73 @@
-import utils from '@webreflection/elements-utils';
+import Lie from '@webreflection/lie';
+import QSAO from 'qsa-observer';
 
 const {create, keys} = Object;
 
-const config = [];
-const query = [];
-const defined = {};
+const attributes = new WeakMap;
 const lazy = new Set;
-const wicked = new WeakMap;
-const callbacks = new WeakMap;
 
-const {
-  get, upgrade, whenDefined,
-  $: setupList, _: asCustomElement
-} = utils(
-  document, query, config, defined,
-  (value, {m, l, o}) => {
-    if (!m.has(value)) {
-      const handler = create(o, {
-        element: {enumerable: true, value}
-      });
-      m.set(value, 0);
-      if (!wicked.has(value))
-        wicked.set(value, []);
-      wicked.get(value).push(handler);
-      for (let i = 0, {length} = l; i < length; i++)
-        value.addEventListener(l[i].t, handler, l[i].o);
-      if (handler.init)
-        handler.init();
-      asCustomElement(value, o);
-    }
-  }
-);
+const query = [];
+const config = {};
+const defined = {};
 
-const delegate = (key, method, notAC) => function (name) {
-  for (let h = wicked.get(this), i = 0, {length} = h; i < length; i++) {
-    if (
-      method === h[i][key] && (
-        notAC || -1 < (h[i].observedAttributes || []).indexOf(name)
-      )
-    )
-      method.apply(h[i], arguments);
+const attributeChangedCallback = (records, mo) => {
+  for (let i = 0, {length} = records; i < length; i++) {
+    const {target, attributeName, oldValue} = records[i];
+    const newValue = target.getAttribute(attributeName);
+    attributes.get(mo).attributeChanged(attributeName, oldValue, newValue);
   }
 };
 
+const set = (value, m, l, o) => {
+  const handler = create(o, {element: {enumerable: true, value}});
+  for (let i = 0, {length} = l; i < length; i++)
+    value.addEventListener(l[i].t, handler, l[i].o);
+  m.set(value, handler);
+  if (handler.init)
+    handler.init();
+  const {observedAttributes} = o;
+  if (observedAttributes) {
+    const mo = new MutationObserver(attributeChangedCallback);
+    mo.observe(value, {
+      attributes: true,
+      attributeOldValue: true,
+      attributeFilter: observedAttributes.map(attributeName => {
+        if (value.hasAttribute(attributeName))
+          handler.attributeChanged(
+            attributeName,
+            null,
+            value.getAttribute(attributeName)
+          );
+        return attributeName;
+      })
+    });
+    attributes.set(mo, handler);
+  }
+  return handler;
+};
+
+const {drop, flush, parse} = QSAO({
+  query,
+  handle(element, connected, selector) {
+    const {m, l, o} = config[selector];
+    const handler = m.get(element) || set(element, m, l, o);
+    const method = connected ? 'connected' : 'disconnected';
+    if (method in handler)
+      handler[method]();
+  }
+});
+
+export const get = selector => (config[selector] || attributes).o;
+
 export const define = (selector, definition) => {
-  if (get(selector))
+  if (-1 < query.indexOf(selector))
     throw new Error('duplicated: ' + selector);
+  flush();
   const listeners = [];
   const retype = create(null);
   for (let k = keys(definition), i = 0, {length} = k; i < length; i++) {
     const key = k[i];
-    if (/^(?:connected|disconnected|attributeChanged)$/.test(key)) {
-      if (!callbacks.has(definition[key]))
-        callbacks.set(definition[key], delegate(
-          key, definition[key], key[0] !== 'a'
-        ));
-      definition[key + 'Callback'] = callbacks.get(definition[key]);
-    }
-    else if (/^on/.test(key) && !/Options$/.test(key)) {
+    if (/^on/.test(key) && !/Options$/.test(key)) {
       const options = definition[key + 'Options'] || false;
       const lower = key.toLowerCase();
       let type = lower.slice(2);
@@ -76,8 +86,8 @@ export const define = (selector, definition) => {
     };
   }
   query.push(selector);
-  config.push({m: new WeakMap, l: listeners, o: definition});
-  setupList(document.querySelectorAll(selector), new Set);
+  config[selector] = {m: new WeakMap, l: listeners, o: definition};
+  parse(document.querySelectorAll(selector));
   whenDefined(selector);
   if (!lazy.has(selector))
     defined[selector]._();
@@ -90,9 +100,8 @@ export const defineAsync = (selector, callback, _) => {
       if (lazy.has(selector)) {
         lazy.delete(selector);
         callback().then(({default: definition}) => {
-          const i = query.indexOf(selector);
-          query.splice(i, 1);
-          config.splice(i, 1);
+          query.splice(query.indexOf(selector), 1);
+          drop(document.querySelectorAll(selector));
           (_ || define)(selector, definition);
         });
       }
@@ -100,4 +109,17 @@ export const defineAsync = (selector, callback, _) => {
   });
 };
 
-export {get, upgrade, whenDefined};
+export const upgrade = element => {
+  if (query.length) {
+    flush();
+    parse([element]);
+  }
+};
+
+export const whenDefined = selector => {
+  if (!(selector in defined)) {
+    let _, $ = new Lie($ => { _ = $; });
+    defined[selector] = {_, $};
+  }
+  return defined[selector].$;
+};
