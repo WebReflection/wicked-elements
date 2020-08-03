@@ -47,6 +47,6 @@
   "homepage": "https://github.com/WebReflection/wicked-elements#readme",
   "dependencies": {
     "@webreflection/lie": "^0.1.0",
-    "qsa-observer": "^1.1.1"
+    "qsa-observer": "^1.1.2"
   }
 }

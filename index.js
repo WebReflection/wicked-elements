@@ -122,14 +122,14 @@ self.wickedElements = (function (exports) {
   var config = {};
   var defined = {};
 
-  var attributeChangedCallback = function attributeChangedCallback(records, mo) {
-    for (var i = 0, length = records.length; i < length; i++) {
+  var attributeChangedCallback = function attributeChangedCallback(records, o) {
+    for (var h = attributes.get(o), i = 0, length = records.length; i < length; i++) {
       var _records$i = records[i],
           target = _records$i.target,
           attributeName = _records$i.attributeName,
           oldValue = _records$i.oldValue;
       var newValue = target.getAttribute(attributeName);
-      attributes.get(mo).attributeChanged(attributeName, oldValue, newValue);
+      h.attributeChanged(attributeName, oldValue, newValue);
     }
   };
 

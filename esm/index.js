@@ -10,11 +10,11 @@ const query = [];
 const config = {};
 const defined = {};
 
-const attributeChangedCallback = (records, mo) => {
-  for (let i = 0, {length} = records; i < length; i++) {
+const attributeChangedCallback = (records, o) => {
+  for (let h = attributes.get(o), i = 0, {length} = records; i < length; i++) {
     const {target, attributeName, oldValue} = records[i];
     const newValue = target.getAttribute(attributeName);
-    attributes.get(mo).attributeChanged(attributeName, oldValue, newValue);
+    h.attributeChanged(attributeName, oldValue, newValue);
   }
 };
 
