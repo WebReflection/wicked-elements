@@ -2,6 +2,12 @@
 
 <sup>**Social Media Photo by [Jonatan Pie](https://unsplash.com/@r3dmax) on [Unsplash](https://unsplash.com/)**</sup>
 
+### 📣 Community Announcement
+
+Please ask questions in the [dedicated forum](https://webreflection.boards.net/) to help the community around this project grow ♥
+
+---
+
 An _all inclusive_ ~1.3K library to handle any element as if it was a Custom Element.
 
 ```js
