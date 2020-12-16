@@ -66,8 +66,8 @@ wickedElements.define(
     onClick(event) {},
     onCustomEvent(event) {}
     // if defined camelCase, events will be attached both lowercase
-    // and also camelCase, so that element.dispatch(new CustomEvent('customEvent'))
-    // or element.dispatch(new CustomEvent('customevent')) will both work.
+    // and also camelCase, so that element.dispatchEvent(new CustomEvent('customEvent'))
+    // or element.dispatchEvent(new CustomEvent('customevent')) will both work.
     // the `event.type` will be the one dispatched, i.e. `click` or `customEvent`
     // or even `customevent`.
 
